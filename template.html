@@ -1,27 +1,19 @@
 <!DOCTYPE html>
-<!--
- * HTML-Sheets-of-Paper (https://github.com/delight-im/HTML-Sheets-of-Paper)
- * Copyright (c) delight.im (https://www.delight.im/)
- * Licensed under the MIT License (https://opensource.org/licenses/MIT)
--->
 <html>
 	<head>
 		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="description" content="Emulating real sheets of paper in web documents (using HTML and CSS)">
-		<title>Sheets of Paper</title>
 		<link rel="stylesheet" type="text/css" href="css/sheets-of-paper-a5.css">
 	</head>
 	<body class="document">
 		<div class="page address">
 			<img class="stamp" src="stamp.png" alt="stamp"/>
 			<p>
-				Name<br>
-				First address line<br>
-				Second address line<br>
-				Town/city<br>
-				County<br>
-				Postcode
+				{name}<br>
+				{firstAddr}<br>
+				{secondAddr}<br>
+				{town}<br>
+				{county}<br>
+				{postcode}
 			</p>
 		</div>
 		<div class="page calendar">
