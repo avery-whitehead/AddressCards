@@ -1,8 +1,27 @@
 /*!
- * HTML-Sheets-of-Paper (https://github.com/delight-im/HTML-Sheets-of-Paper)
- * Copyright (c) delight.im (https://www.delight.im/)
- * Licensed under the MIT License (https://opensource.org/licenses/MIT)
- */
+* HTML-Sheets-of-Paper (https://github.com/delight-im/HTML-Sheets-of-Paper)
+* Copyright (c) delight.im (https://www.delight.im/)
+* Licensed under the MIT License (https://opensource.org/licenses/MIT)
+*/
+
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+/* First postcard page containing address */
+.address {
+	position: relative;
+ 	text-align: justify;
+ 	text-align-last: center;
+}
+
+.address p {
+ 	padding-top: 50%;
+}
+
+.body h1 {
+	position: relative;
+	text-align: justify;
+	text-align-last: center;
+}
 
 html, body {
 	/* Reset the document's margin values */
@@ -10,24 +29,25 @@ html, body {
 	/* Reset the document's padding values */
 	padding: 0;
 	/* Use the platform's native font as the default */
-	font-family: "Roboto", -apple-system, "San Francisco", "Segoe UI", "Helvetica Neue", sans-serif;
+	font-family: "Roboto", sans-serif;
 	/* Define a reasonable base font size */
 	font-size: 12pt;
-
-	/* Styles for better appearance on screens only -- are reset to defaults in print styles later */
-
 	/* Use a non-white background color to make the content areas stick out from the full page box */
 	background-color: #eee;
 }
+
 /* Styles that are shared by all elements */
 * {
-	/* Include the content box as well as padding and border for precise definitions */
-	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	vertical-align: baseline;
+	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
-.page {
-	/* Styles for better appearance on screens only -- are reset to defaults in print styles later */
 
+.page {
 	/* Divide single pages with some space and center all pages horizontally */
 	margin: 1cm auto;
 	/* Define a white paper background that sticks out from the darker overall background */
@@ -37,50 +57,160 @@ html, body {
 	/* Override outline from user agent stylesheets */
 	outline: 0;
 }
+
 /* Defines a class for manual page breaks via inserted .page-break element */
 div.page-break {
 	page-break-after: always;
 }
+
 /* For top-level headings only */
 h1 {
 	/* Force page breaks after */
 	page-break-before: always;
 }
+
 /* For all headings */
 h1, h2, h3, h4, h5, h6 {
 	/* Avoid page breaks immediately */
 	page-break-after: avoid;
 }
+
 /* For all paragraph tags */
 p {
 	/* Reset the margin so that the text starts and ends at the expected marks */
 	margin: 0;
 }
+
 /* For adjacent paragraph tags */
 p + p {
 	/* Restore the spacing between the paragraphs */
 	margin-top: 0.5cm;
 }
+
 /* For links in the document */
 a {
 	/* Prevent colorization or decoration */
 	text-decoration: none;
 	color: black;
 }
+
 /* For tables in the document */
 table {
 	/* Avoid page breaks inside */
 	page-break-inside: avoid;
 }
+
+/* Calendar CSS */
+.pricing-table {
+	width: 250%;
+	margin: 50px auto;
+	text-align: center;
+	padding-right: 100px;
+}
+
+.wrapper {
+	font-family: "Roboto",sans-serif;
+	line-height: 1;
+	font-size: 16px;
+}
+
+.fl {
+	float: left;
+}
+
+.block {
+	width: 20%;
+	margin: 0 15px;
+	overflow: hidden;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.title {
+	color: #fefefe;
+	line-height: 2.5;
+}
+
+.business .title {
+	background: #E3536C;
+}
+
+.content {
+	position: relative;
+	color: #fefefe;
+	padding: 20px 0 10px 0;
+}
+
+.business .content, .business .pt-footer {
+	background: #EB6379;
+}
+
+.features {
+	list-style-type: none;
+	background: #FFFFFF;
+	text-align: left;
+	color: #9c9c9c;
+	padding: 30px 22%;
+	font-size: 0.9rem;
+}
+
+.features li {
+	padding: 15px 0;
+	width: 100%;
+}
+
+.features li span {
+	padding-right: 0.4rem;
+}
+
+.price {
+	position: relative;
+	display: inline-block;
+	margin-bottom: 0.62rem;
+}
+
+.hint {
+	font-style: italic;
+	font-size: 0.9rem;
+}
+
+.price sup {
+	font-size: 1.5rem;
+	position: absolute;
+	top: 12px;
+	left: -12px;
+}
+
+.price span {
+	font-size: 4.5rem;
+	letter-spacing: 8px;
+	font-weight: bold;
+}
+
+.professional .title {
+	background: #3EC6E0;
+}
+
+.professional .content, .professional .pt-footer {
+	background: #53CFE9;
+}
+
+.personal .title {
+	background: #78CFBF;
+}
+
+.personal .content, .personal .pt-footer {
+	background: #82DACA;
+}
+
 /* Use CSS Paged Media to switch from continuous documents to sheet-like documents with separate pages */
 @page {
-	/* You can only change the size, margins, orphans, widows and page breaks here */
-
 	/* Require that at least this many lines of a paragraph must be left at the bottom of a page */
 	orphans: 4;
 	/* Require that at least this many lines of a paragraph must be left at the top of a new page */
 	widows: 2;
 }
+
 /* When the document is actually printed */
 @media print {
 	html, body {
