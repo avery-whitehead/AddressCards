@@ -1,5 +1,10 @@
 import pyodbc
 
+class WasteProperty:
+    def __init__(self, address, calendar):
+        self.address = address
+        self.calendar = calendar
+
 class Property:
     def __init__(self, name, firstAddr, secondAddr, town, county, postcode, uprn, calendar):
         self.name = name.strip()
@@ -47,6 +52,32 @@ class Calendar:
         self.glsDay = glsDay
         self.glsWeek = glsWeek
 
+def build_waste_property(conn, uprn):
+    cursor = conn.cursor()
+    with open ('./cal_query.sql', 'r') as query_file:
+        query = query_file.read()
+        cursor.execute(query, uprn)
+        row = cursor.fetchone()
+        cal_obj = Calendar(row.REFDay, row.REFWeek, row.RECYDay, row.RECYWeek, row.GWDay, row.GWWeek, row.RECYDay, row.RECYWeek)
+        prop_obj = WasteProperty(row.addressBlock, cal_obj)
+        return prop_obj
+
+def build_html(prop_obj, uprn):
+    with open('./out/template.html', 'r') as html_file:
+        html = html_file.readlines()
+        html[10] = '\t\t\t\t{}\n'.format(prop_obj.address)
+        html[20] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.refDay)
+        html[22] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.refWeek)
+        html[29] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.recyDay)
+        html[31] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.recyWeek)
+        html[39] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.gwDay)
+        html[41] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.gwWeek)
+        html[48] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.glsDay)
+        html[50] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.glsWeek)
+    out_name = './out/{}.html'.format(uprn)
+    with open(out_name, 'w+') as out_file:
+        out_file.write(''.join(html))
+
 def build_calendar(conn, uprn):
     cal_curs = conn.cursor()
     # Retrieves waste calendar information
@@ -79,23 +110,14 @@ def build_property(conn, uprn, cal_obj):
 
 if __name__ == '__main__':
     pyodbc.pooling = False
-    cal_conn = pyodbc.connect(
+    conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 13 for SQL Server};'
         r'SERVER=CCVSQL12;'
         r'DATABASE=WaSSCollections;'
         r'UID=af_WaSSCollections_rw;'
         r'PWD=o~W\,W3tF%\~zz03'
     )
-    prop_conn = pyodbc.connect(
-        r'DRIVER={ODBC Driver 13 for SQL Server};'
-        r'SERVER=CCVSQL12\SQLInstance2;'
-        r'DATABASE=Images;'
-        r'UID=PACommentAutomation;'
-        r'PWD=T5b}rh~Dq<kY2'
-    )
-    uprns = ['100050380169']
+    uprns = ['010001279831','100050380169','100050359718','010001285090','100050370512','100050366002','010001286067']
     for uprn in uprns:
-        cal_obj = build_calendar(cal_conn, uprn)
-        prop_obj = build_property(prop_conn, uprn, cal_obj)
-        html = prop_obj.build_html()
-        prop_obj.export_html(html)
+        waste_property = build_waste_property(conn, uprn)
+        build_html(waste_property, uprn)
