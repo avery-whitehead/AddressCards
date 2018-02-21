@@ -7,19 +7,21 @@ class Property:
         self.county = county
         self.postcode = postcode
 
+    # Loads and fills in the HTML template
     def build_html(self):
-        with open('template.html', 'r') as html_file:
+        with open('./out/template.html', 'r') as html_file:
             html = html_file.readlines()
         line = 10
         for attr, value in vars(self).items():
-            html[line] = value + '<br>'
+            html[line] = '\t\t\t\t' + value + '<br>\n'
             line += 1
         return html
 
+    # Saves the HTML template to a file
     def export_html(self, html):
         file_name = './out/' + self.name + '.html'
         with open(file_name, 'w+') as out_file:
-            out_file.write('\n'.join(html))
+            out_file.write(''.join(html))
 
 if __name__ == '__main__':
     prop = Property('James Whitehead', '9 White Rose House', 'Ainderby Gardens', 'Northallerton', 'North Yorkshire', 'DL7 8GT')
