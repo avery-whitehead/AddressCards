@@ -8,7 +8,7 @@ class Property:
         self.town = town.strip()
         self.county = county.strip()
         self.postcode = postcode.strip()
-        self.uprn = uprn.strip()
+        self.uprn = uprn
         self.calendar = calendar
 
     # Loads and fills in the HTML template
@@ -47,22 +47,13 @@ class Calendar:
         self.glsDay = glsDay
         self.glsWeek = glsWeek
 
-if __name__ == '__main__':
-    pyodbc.pooling = False
-    # Connects to SQL Server
-    conn = pyodbc.connect(
-        r'DRIVER={ODBC Driver 13 for SQL Server};'
-        r'SERVER=CCVSQL12;'
-        r'DATABASE=WaSSCollections;'
-        r'UID=af_WaSSCollections_rw;'
-        r'PWD=o~W\,W3tF%\~zz03'
-    )
-
+def build_calendar(conn, uprn):
     cal_curs = conn.cursor()
+    # Retrieves waste calendar information
     cal_curs.execute("""
         select
            p.uprn
-           ,l.ADDRESS_BLOCK_ORG
+           ,replace(replace(l.ADDRESS_BLOCK_ORG,'North Yorkshire'+char(13)+char(10),''),char(13)+char(10),'<BR>') as addressBlock
            ,case
                   when ref.ScheduleDayID < 8 then 1
                   when ref.ScheduleDayID > 7 then 2
@@ -111,41 +102,51 @@ if __name__ == '__main__':
                   on p.uprn=psr_gw.uprn
            left join (select * from rounds where serviceid = 'GW' and RoundEra=2)  gw
                   on psr_gw.RoundID=gw.RoundID
-                  where p.uprn in ('100050380169') and psr_ref.RoundEra=2
-    """)
-
-    cals = cal_curs.fetchall()
-    for cal in cals:
-        cal_obj = Calendar(cal.REFDay, cal.REFWeek, cal.RECYDay, cal.RECYWeek, cal.GWDay, cal.GWWeek, None, None)
+                  where p.uprn in (?) and psr_ref.RoundEra=2
+    """, uprn)
+    cal = cal_curs.fetchone()
+    cal_obj = Calendar(cal.REFDay, cal.REFWeek, cal.RECYDay, cal.RECYWeek, cal.GWDay, cal.GWWeek, None, None)
     cal_curs.close()
     del cal_curs
     conn.close()
+    return cal_obj
 
-    conn = pyodbc.connect(
+def build_property(conn, uprn, cal_obj):
+    # Gets name associated with UPRN
+    name_curs = conn.cursor()
+    name_curs.execute("SELECT TOP 1 SURNAME FROM dbo.FOLDER1 WHERE FOLDER3_REF = '{}'".format(uprn))
+    name = name_curs.fetchone()
+    # Gets property associated with UPRN
+    prop_curs = conn.cursor()
+    prop_curs.execute("SELECT PAO, STREET, TOWN, COUNTY, POSTCODE FROM dbo.FOLDER3 WHERE FOLDER3_REF = '{}'".format(uprn))
+    prop = prop_curs.fetchone()
+    prop_obj = Property(name.SURNAME, prop.PAO, prop.STREET, prop.TOWN, prop.COUNTY, prop.POSTCODE, uprn, cal_obj)
+    prop_curs.close()
+    del prop_curs
+    name_curs.close()
+    del name_curs
+    conn.close()
+    return prop_obj
+
+if __name__ == '__main__':
+    pyodbc.pooling = False
+    cal_conn = pyodbc.connect(
+        r'DRIVER={ODBC Driver 13 for SQL Server};'
+        r'SERVER=CCVSQL12;'
+        r'DATABASE=WaSSCollections;'
+        r'UID=af_WaSSCollections_rw;'
+        r'PWD=o~W\,W3tF%\~zz03'
+    )
+    prop_conn = pyodbc.connect(
         r'DRIVER={ODBC Driver 13 for SQL Server};'
         r'SERVER=CCVSQL12\SQLInstance2;'
         r'DATABASE=Images;'
         r'UID=PACommentAutomation;'
         r'PWD=T5b}rh~Dq<kY2'
     )
-
-    # Gets name and UPRN
-    uprn_curs = conn.cursor()
-    uprn_curs.execute("SELECT TOP 1 SURNAME, FOLDER3_REF AS UPRN FROM dbo.FOLDER1 WHERE FOLDER3_REF ='100050380169'")
-    uprns = uprn_curs.fetchall()
+    uprns = ['100050380169']
     for uprn in uprns:
-        # Gets property associated with UPRN
-        prop_curs = conn.cursor()
-        prop_curs.execute("SELECT PAO, STREET, TOWN, COUNTY, POSTCODE FROM dbo.FOLDER3 WHERE FOLDER3_REF = '{}'".format(uprn.UPRN))
-        props = prop_curs.fetchall()
-        # Builds property object
-        for prop in props:
-            prop_obj = Property(uprn.SURNAME, prop.PAO, prop.STREET, prop.TOWN, prop.COUNTY, prop.POSTCODE, uprn.UPRN, cal_obj)
-            html = prop_obj.build_html()
-            prop_obj.export_html(html)
-        # Cleans up connections
-        prop_curs.close()
-        del prop_curs
-    uprn_curs.close()
-    del uprn_curs
-    conn.close()
+        cal_obj = build_calendar(cal_conn, uprn)
+        prop_obj = build_property(prop_conn, uprn, cal_obj)
+        html = prop_obj.build_html()
+        prop_obj.export_html(html)
