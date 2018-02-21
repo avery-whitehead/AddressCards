@@ -23,7 +23,7 @@ class Property:
 
     # Saves the HTML template to a file
     def export_html(self, html):
-        file_name = './out/{}.html'.format(self.uprn)
+        file_name = './out/{}.html'.format(self.uprn.strip())
         with open(file_name, 'w+') as out_file:
             out_file.write(''.join(html))
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     # Gets name and UPRN
     uprn_curs = conn.cursor()
-    uprn_curs.execute("SELECT TOP 1 SURNAME, FOLDER3_REF AS UPRN FROM dbo.FOLDER1 WHERE FOLDER1_REF2 LIKE '%6399474%'")
+    uprn_curs.execute("SELECT TOP 1 SURNAME, FOLDER3_REF AS UPRN FROM dbo.FOLDER1 WHERE FOLDER1_REF2 LIKE '%_%'")
     uprns = uprn_curs.fetchall()
     for uprn in uprns:
         # Gets property associated with UPRN
@@ -48,6 +48,12 @@ if __name__ == '__main__':
         props = prop_curs.fetchall()
         # Builds property object
         for prop in props:
-            prop_obj = Property(uprn.SURNAME, prop.PAO, prop.STREET, prop.TOWN, prop.COUNTY, prop.POSTCODE, uprn.UPRN.strip())
+            prop_obj = Property(uprn.SURNAME, prop.PAO, prop.STREET, prop.TOWN, prop.COUNTY, prop.POSTCODE, uprn.UPRN)
             html = prop_obj.build_html()
             prop_obj.export_html(html)
+        # Cleans up connections
+        prop_curs.close()
+        del prop_curs
+    uprn_curs.close()
+    del uprn_curs
+    conn.close()
