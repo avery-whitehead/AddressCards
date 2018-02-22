@@ -34,6 +34,7 @@
     position: relative;
     text-align: justify;
     text-align-last: center;
+    margin-top: 20px;
     margin-bottom: 5%;
 }
 
@@ -51,7 +52,7 @@
 }
 
 .block {
-    width: 20%;
+    width: 15%;
     margin: 0 10px;
     overflow: hidden;
     -webkit-border-radius: 5px;

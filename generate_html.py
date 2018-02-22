@@ -27,20 +27,25 @@ def build_waste_property(conn, uprn):
         return prop_obj
 
 def build_html(prop_obj, uprn):
-    with open('./out/template.html', 'r') as html_file:
-        html = html_file.readlines()
-        html[10] = '\t\t\t\t{}\n'.format(prop_obj.address)
-        html[20] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.refDay)
-        html[22] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.refWeek)
-        html[29] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.recyDay)
-        html[31] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.recyWeek)
-        html[38] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.gwDay)
-        html[40] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.gwWeek)
-        html[47] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.glsDay)
-        html[49] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.glsWeek)
-    out_name = './out/{}.html'.format(uprn)
-    with open(out_name, 'w+') as out_file:
-        out_file.write(''.join(html))
+    with open('./out/template-front.html', 'r') as address_file:
+        address_page = address_file.readlines()
+        address_page[10] = '\t\t\t\t{}\n'.format(prop_obj.address)
+    with open('./out/template-back.html', 'r') as calendar_file:
+        calendar_page = calendar_file.readlines()
+        calendar_page[14] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.refDay)
+        calendar_page[16] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.refWeek)
+        calendar_page[23] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.recyDay)
+        calendar_page[25] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.recyWeek)
+        calendar_page[32] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.gwDay)
+        calendar_page[34] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.gwWeek)
+        calendar_page[41] = '\t\t\t\t\t\t\t\t<span>{}</span>\n'.format(prop_obj.calendar.glsDay)
+        calendar_page[43] = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'.format(prop_obj.calendar.glsWeek)
+    address_out_name = './out/{}-addr.html'.format(uprn)
+    calendar_out_name = './out/{}-cal.html'.format(uprn)
+    with open(address_out_name, 'w+') as address_out:
+        address_out.write(''.join(address_page))
+    with open(calendar_out_name, 'w+') as calendar_out:
+        calendar_out.write(''.join(calendar_page))
 
 if __name__ == '__main__':
     pyodbc.pooling = False
