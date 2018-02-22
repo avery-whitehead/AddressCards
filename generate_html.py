@@ -110,7 +110,7 @@ if __name__ == '__main__':
         r'PWD=o~W\,W3tF%\~zz03'
     )
 
-    uprns = ['010001279831','100050380169','100050359718','010001285090','100050370512','100050366002','010001286067']
+    uprns = ['010001285090']
     for uprn in uprns:
         postcard = build_postcard(conn, uprn)
         build_html(postcard, uprn)

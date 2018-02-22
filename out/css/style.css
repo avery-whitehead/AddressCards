@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
+@media print {
+    @page size: A5 landcape;
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -52,18 +57,18 @@
 }
 
 .block {
-    width: 15%;
-    margin: 0 10px;
+    width: 21.5%;
+    margin: 0 5px;
     overflow: hidden;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
 }
 
 .title {
-    font-size: 18pt;
+    font-size: 15pt;
     color: #FEFEFE;
     line-height: 2.5;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
 }
 
 .content {
@@ -79,7 +84,7 @@
 }
 
 .day span {
-    font-size: 4.5rem;
+    font-size: 3rem;
     letter-spacing: 8px;
     font-weight: bold;
 }
