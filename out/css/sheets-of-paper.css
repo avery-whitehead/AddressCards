@@ -16,7 +16,7 @@
 }
 
 .address p {
- 	padding-top: 40%;
+ 	padding-top: 10%;
 	line-height: 3;
 }
 
@@ -82,10 +82,9 @@ table {
 
 /* Calendar CSS */
 .calendar-table {
-	width: 250%;
-	margin: 50px auto;
+	width: 100%;
+	margin: 20px 20px 20px 5px;
 	text-align: center;
-	padding-right: 100px;
 	line-height: 1;
 	font-size: 16px;
 }
@@ -95,8 +94,8 @@ table {
 }
 
 .block {
-	width: 20%;
-	margin: 0 15px;
+	width: 22%;
+	margin: 0 10px;
 	overflow: hidden;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;

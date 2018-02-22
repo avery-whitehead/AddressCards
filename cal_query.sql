@@ -4,7 +4,7 @@ select
        ,case
               when ref.ScheduleDayID < 8 then 'Week 1'
               when ref.ScheduleDayID > 7 then 'Week 2'
-              else ' '
+              else '&nbsp;'
        end as REFWeek
        ,case
               when ref.ScheduleDayID in (1,8) then 'Mon'
@@ -17,7 +17,7 @@ select
        ,case
               when recy.ScheduleDayID < 8 then 'Week 1'
               when recy.ScheduleDayID > 7 then 'Week 2'
-              else ' '
+              else '&nbsp;'
        end as RECYWeek
        ,case
               when recy.ScheduleDayID in (1,8) then 'Mon'
@@ -30,7 +30,7 @@ select
        ,case
               when gw.ScheduleDayID < 8 then 'Week 1'
               when gw.ScheduleDayID > 7 then 'Week 2'
-              else ' '
+              else '&nbsp;'
        end as GWWeek
        ,case
               when gw.ScheduleDayID in (1,8) then 'Mon'
