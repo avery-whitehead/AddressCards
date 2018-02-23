@@ -79,12 +79,12 @@ def build_html(post_obj, uprn):
 
     with open('./out/template-front.html', 'r') as address_file:
         address_page = address_file.readlines()
-        address_page[10] = addr_format.format(post_obj.address)
+        address_page[16] = addr_format.format(post_obj.address)
 
     with open('./out/template-back.html', 'r') as calendar_file:
         calendar_page = calendar_file.readlines()
         # Fills in the day and week information on the correct HTML lines
-        line = 14
+        line = 20
         for i in range(0, len(attrs), 2):
             calendar_page[line] = day_format.format(attrs[i])
             # Week line is two lines after day line
@@ -110,7 +110,7 @@ if __name__ == '__main__':
         r'PWD=o~W\,W3tF%\~zz03'
     )
 
-    uprns = ['010001285090']
+    uprns = ['010001279831','100050380169','100050359718','010001285090','100050370512','100050366002','010001286067']
     for uprn in uprns:
         postcard = build_postcard(conn, uprn)
         build_html(postcard, uprn)
