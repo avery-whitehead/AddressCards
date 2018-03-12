@@ -2,42 +2,42 @@ select
        p.uprn
        ,replace(replace(l.ADDRESS_BLOCK_ORG,'North Yorkshire'+char(13)+char(10),''),char(13)+char(10),'<br>') as addressBlock
        ,case
-              when ref.ScheduleDayID < 8 then 'Week 1'
-              when ref.ScheduleDayID > 7 then 'Week 2'
+              when ref.ScheduleDayID < 8 then '1'
+              when ref.ScheduleDayID > 7 then '2'
               else '&nbsp;'
        end as REFWeek
        ,case
-              when ref.ScheduleDayID in (1,8) then 'Mon'
-              when ref.ScheduleDayID in (2,9) then 'Tue'
-              when ref.ScheduleDayID in (3,10) then 'Wed'
-              when ref.ScheduleDayID in (4,11) then 'Thu'
-              when ref.ScheduleDayID in (5,12) then 'Fri'
+              when ref.ScheduleDayID in (1,8) then 'Monday'
+              when ref.ScheduleDayID in (2,9) then 'Tuesday'
+              when ref.ScheduleDayID in (3,10) then 'Wednesday'
+              when ref.ScheduleDayID in (4,11) then 'Thursday'
+              when ref.ScheduleDayID in (5,12) then 'Friday'
               else '-'
        end as REFDay
        ,case
-              when recy.ScheduleDayID < 8 then 'Week 1'
-              when recy.ScheduleDayID > 7 then 'Week 2'
+              when recy.ScheduleDayID < 8 then '1'
+              when recy.ScheduleDayID > 7 then '2'
               else '&nbsp;'
        end as RECYWeek
        ,case
-              when recy.ScheduleDayID in (1,8) then 'Mon'
-              when recy.ScheduleDayID in (2,9) then 'Tue'
-              when recy.ScheduleDayID in (3,10) then 'Wed'
-              when recy.ScheduleDayID in (4,11) then 'Thu'
-              when recy.ScheduleDayID in (5,12) then 'Fri'
+              when recy.ScheduleDayID in (1,8) then 'Monday'
+              when recy.ScheduleDayID in (2,9) then 'Tuesday'
+              when recy.ScheduleDayID in (3,10) then 'Wednesday'
+              when recy.ScheduleDayID in (4,11) then 'Thursday'
+              when recy.ScheduleDayID in (5,12) then 'Friday'
               else '-'
        end as RECYDay
        ,case
-              when gw.ScheduleDayID < 8 then 'Week 1'
-              when gw.ScheduleDayID > 7 then 'Week 2'
+              when gw.ScheduleDayID < 8 then '1'
+              when gw.ScheduleDayID > 7 then '2'
               else '&nbsp;'
        end as GWWeek
        ,case
-              when gw.ScheduleDayID in (1,8) then 'Mon'
-              when gw.ScheduleDayID in (2,9) then 'Tue'
-              when gw.ScheduleDayID in (3,10) then 'Wed'
-              when gw.ScheduleDayID in (4,11) then 'Thu'
-              when gw.ScheduleDayID in (5,12) then 'Fri'
+              when gw.ScheduleDayID in (1,8) then 'Monday'
+              when gw.ScheduleDayID in (2,9) then 'Tuesday'
+              when gw.ScheduleDayID in (3,10) then 'Wednesday'
+              when gw.ScheduleDayID in (4,11) then 'Thursday'
+              when gw.ScheduleDayID in (5,12) then 'Friday'
               else '-'
        end as GWDay
 from properties p

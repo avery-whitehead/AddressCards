@@ -2,6 +2,8 @@ import pyodbc
 import json
 
 class DatabaseConn:
+    """ Represents a pyodbc connection string. Reads the attributes from a config file.
+    """
     def __init__(self):
         with open('generate_html.config') as config_file:
             config = json.load(config_file)
@@ -26,29 +28,35 @@ class Calendar:
     """ Represents a collection calendar, detailing which bin is collected on which day on which week.
 
     Note:
-        Potential day values: Mon, Tue, Wed, Thu, Fri.
+        Potential day values: Monday, Tuesday, Wednesday, Thursday, Friday.
         Potential week values: 1, 2.
         Recycling bin days/weeks and glass bin days/weeks are often the same
 
     Args:
-        refDay (str): The day normal refuse bins are collected
-        refWeek (str): The week normal refuse bins are collected
-        recyDay (str): The day recycling bins are collected
-        recyWeek (str): The week recycling bins are collected
-        gwDay (str): The day garden waste bins are collected
-        gwWeek (str): The week garden waste bins are collected
-        glsDay (str): The day glass refuse bins are collected
-        glsWeek (str): The week glass refuse bins are collected
+        ref_day (str): The day normal refuse bins are collected
+        ref_week (str): The week normal refuse bins are collected
+        recy_day (str): The day recycling bins are collected
+        recy_week (str): The week recycling bins are collected
+        gw_day (str): The day garden waste bins are collected
+        gw_week (str): The week garden waste bins are collected
+        gls_day (str): The day glass refuse bins are collected
+        gls_week (str): The week glass refuse bins are collected
     """
-    def __init__(self, refDay, refWeek, recyDay, recyWeek, gwDay, gwWeek, glsDay, glsWeek):
-        self.refDay = refDay
-        self.refWeek = refWeek
-        self.recyDay = recyDay
-        self.recyWeek = recyWeek
-        self.gwDay = gwDay
-        self.gwWeek = gwWeek
-        self.glsDay = glsDay
-        self.glsWeek = glsWeek
+    def __init__(self, ref_day, ref_week, recy_day, recy_week, gw_day, gw_week, gls_day, gls_week):
+        dates = {
+            'Monday': 7,
+            'Tuesday': 8,
+            'Wednesday': 9,
+            'Thursday': 10,
+            'Friday': 11
+        }
+        self.ref_string = '{}<br>{}, {} May'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
+        self.recy_string = '{}<br>{}, {} May'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
+        if gw_day == '-':
+            self.gw_string = '-'
+        else:
+            self.gw_string = '{}<br>{}, {} May'.format(gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
+        self.gls_string = '{}<br>{}, {} May'.format(gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
 
 def build_postcard(conn, uprn):
     """ Creates a Postcard object for a property
@@ -87,6 +95,8 @@ def build_html(post_obj, uprn):
     addr_format = '\t\t<div class="address">{}</div>\n'
     day_format = '\t\t\t\t\t\t\t\t<span>{}</span>\n'
     week_format = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'
+
+    print(post_obj.calendar.ref_string)
 
     with open('./out/template-front.html', 'r') as address_file:
         address_page = address_file.readlines()
