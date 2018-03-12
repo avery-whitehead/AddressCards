@@ -54,7 +54,7 @@ class Calendar:
         self.ref_string = '{}<br>{}, {} May'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
         self.recy_string = '{}<br>{}, {} May'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
         if gw_day == '-':
-            self.gw_string = '-'
+            self.gw_string = 'No<br>Collection'
         else:
             self.gw_string = '{}<br>{}, {} May'.format(gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
         self.gls_string = '{}<br>{}, {} May'.format(gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
@@ -94,21 +94,19 @@ def build_html(post_obj, uprn):
     attrs = list(post_obj.calendar.__dict__.values())
     # Formats of HTML lines for address block, collection day and collection week
     addr_format = '\t\t<div class="address">{}</div>\n'
-    day_format = '\t\t\t\t\t\t\t\t<span>{}</span>\n'
-    week_format = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'
 
     with open('./out/template-front.html', 'r') as address_file:
         # Fills in the address information on the correct HTML lines
         address_page = address_file.readlines()
-        address_page[20] = addr_format.format(post_obj.address)
+        address_page[20] = '\t\t<div class="address">{}</div>\n'.format(post_obj.address)
 
     with open('./out/template-back.html', 'r') as calendar_file:
         calendar_page = calendar_file.readlines()
         # Fills in the collection information on the correct HTML lines
-        calendar_page[40] = '\t\t<div class="bin black-date">{}</div>'.format(post_obj.calendar.ref_string)
-        calendar_page[41] = '\t\t<div class="bin recy-bin-date">{}</div>'.format(post_obj.calendar.recy_string)
-        calendar_page[42] = '\t\t<div class="bin recy-box-date">{}</div>'.format(post_obj.calendar.gls_string)
-        calendar_page[43] = '\t\t<div class="bin green-bin-date">{}</div>'.format(post_obj.calendar.gw_string)
+        calendar_page[41] = '\t\t<div class="bin black-date">{}</div>'.format(post_obj.calendar.ref_string)
+        calendar_page[42] = '\t\t<div class="bin recy-bin-date">{}</div>'.format(post_obj.calendar.recy_string)
+        calendar_page[43] = '\t\t<div class="bin recy-box-date">{}</div>'.format(post_obj.calendar.gls_string)
+        calendar_page[44] = '\t\t<div class="bin green-bin-date">{}</div>'.format(post_obj.calendar.gw_string)
 
     address_out_name = './out/{}-addr.html'.format(uprn)
     calendar_out_name = './out/{}-cal.html'.format(uprn)
