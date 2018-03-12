@@ -84,14 +84,15 @@ def build_html(post_obj, uprn):
     # Creates a list of the attribute values in the Calendar object
     attrs = list(post_obj.calendar.__dict__.values())
     # Formats of HTML lines for address block, collection day and collection week
-    addr_format = '\t\t\t\t{}\n'
+    addr_format = '\t\t<div class="address">{}</div>\n'
     day_format = '\t\t\t\t\t\t\t\t<span>{}</span>\n'
     week_format = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'
 
     with open('./out/template-front.html', 'r') as address_file:
         address_page = address_file.readlines()
-        address_page[16] = addr_format.format(post_obj.address)
+        address_page[20] = addr_format.format(post_obj.address)
 
+    """
     with open('./out/template-back.html', 'r') as calendar_file:
         calendar_page = calendar_file.readlines()
         # Fills in the day and week information on the correct HTML lines
@@ -102,13 +103,13 @@ def build_html(post_obj, uprn):
             calendar_page[line + 2] = week_format.format(attrs[i + 1])
             # Next day line is nine lines after previous day line
             line += 9
-
+    """
     address_out_name = './out/{}-addr.html'.format(uprn)
     calendar_out_name = './out/{}-cal.html'.format(uprn)
     with open(address_out_name, 'w+') as address_out:
         address_out.write(''.join(address_page))
-    with open(calendar_out_name, 'w+') as calendar_out:
-        calendar_out.write(''.join(calendar_page))
+    #with open(calendar_out_name, 'w+') as calendar_out:
+        #calendar_out.write(''.join(calendar_page))
 
 if __name__ == '__main__':
     pyodbc.pooling = False
@@ -124,6 +125,6 @@ if __name__ == '__main__':
     uprns = ['010001279831','100050380169','100050359718','010001285090','100050370512','100050366002','010001286067']
     for uprn in uprns:
         postcard = build_postcard(conn, uprn)
-        #build_html(postcard, uprn)
+        build_html(postcard, uprn)
 
     conn.close()

@@ -1,8 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+        .container {
+            position: relative;
+            font-family: "Georgia", serif;
+        }
+
+        .address {
+            position: absolute;
+            font-size: 120px;
+            left: 200px;
+            top: 500px;
+        }
+    </style>
 </head>
 <body>
-    <p><img src="./postcard-front.jpg" style="width: 100%"/></p>
+    <div class="container">
+        <img src="./postcard-front.jpg" style="width: 100%"/>
+        <div class="address">Line 1<br>Line 2<br>Line 3<br>Line 4<br></div>
 </body>
 </html>
