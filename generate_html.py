@@ -1,4 +1,15 @@
 import pyodbc
+import json
+
+class DatabaseConn:
+    def __init__(self):
+        with open('generate_html.config') as config_file:
+            config = json.load(config_file)
+            self.driver = config['driver']
+            self.server = config['server']
+            self.database = config['database']
+            self.uid = config['uid']
+            self.pwd = config['pwd']
 
 class Postcard:
     """ Represents a postcard, with an address on one side and calendar on the other.
@@ -101,18 +112,18 @@ def build_html(post_obj, uprn):
 
 if __name__ == '__main__':
     pyodbc.pooling = False
-
+    conn_data = DatabaseConn()
     conn = pyodbc.connect(
-        r'DRIVER={ODBC Driver 13 for SQL Server};'
-        r'SERVER=CCVSQL12;'
-        r'DATABASE=WaSSCollections;'
-        r'UID=af_WaSSCollections_rw;'
-        r'PWD=o~W\,W3tF%\~zz03'
+        driver=conn_data.driver,
+        server=conn_data.server,
+        database=conn_data.database,
+        uid=conn_data.uid,
+        pwd=conn_data.pwd
     )
 
     uprns = ['010001279831','100050380169','100050359718','010001285090','100050370512','100050366002','010001286067']
     for uprn in uprns:
         postcard = build_postcard(conn, uprn)
-        build_html(postcard, uprn)
+        #build_html(postcard, uprn)
 
     conn.close()
