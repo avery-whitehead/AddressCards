@@ -50,6 +50,7 @@ class Calendar:
             'Thursday': 10,
             'Friday': 11
         }
+        # Strings representing the text that will be shown for each collection
         self.ref_string = '{}<br>{}, {} May'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
         self.recy_string = '{}<br>{}, {} May'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
         if gw_day == '-':
@@ -96,30 +97,25 @@ def build_html(post_obj, uprn):
     day_format = '\t\t\t\t\t\t\t\t<span>{}</span>\n'
     week_format = '\t\t\t\t\t\t\t<p class="week">{}</p>\n'
 
-    print(post_obj.calendar.ref_string)
-
     with open('./out/template-front.html', 'r') as address_file:
+        # Fills in the address information on the correct HTML lines
         address_page = address_file.readlines()
         address_page[20] = addr_format.format(post_obj.address)
 
-    """
     with open('./out/template-back.html', 'r') as calendar_file:
         calendar_page = calendar_file.readlines()
-        # Fills in the day and week information on the correct HTML lines
-        line = 20
-        for i in range(0, len(attrs), 2):
-            calendar_page[line] = day_format.format(attrs[i])
-            # Week line is two lines after day line
-            calendar_page[line + 2] = week_format.format(attrs[i + 1])
-            # Next day line is nine lines after previous day line
-            line += 9
-    """
+        # Fills in the collection information on the correct HTML lines
+        calendar_page[40] = '\t\t<div class="bin black-date">{}</div>'.format(post_obj.calendar.ref_string)
+        calendar_page[41] = '\t\t<div class="bin recy-bin-date">{}</div>'.format(post_obj.calendar.recy_string)
+        calendar_page[42] = '\t\t<div class="bin recy-box-date">{}</div>'.format(post_obj.calendar.gls_string)
+        calendar_page[43] = '\t\t<div class="bin green-bin-date">{}</div>'.format(post_obj.calendar.gw_string)
+
     address_out_name = './out/{}-addr.html'.format(uprn)
     calendar_out_name = './out/{}-cal.html'.format(uprn)
     with open(address_out_name, 'w+') as address_out:
         address_out.write(''.join(address_page))
-    #with open(calendar_out_name, 'w+') as calendar_out:
-        #calendar_out.write(''.join(calendar_page))
+    with open(calendar_out_name, 'w+') as calendar_out:
+        calendar_out.write(''.join(calendar_page))
 
 if __name__ == '__main__':
     pyodbc.pooling = False
