@@ -54,7 +54,7 @@ class Calendar:
         self.ref_string = '{}<br>{}, {}<br>May'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
         self.recy_string = '{}<br>{}, {}<br>May'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
         if gw_day == '-':
-            self.gw_string = 'No<br>Collection'
+            self.gw_string = 'Not<br>collected'
         else:
             self.gw_string = '{}<br>{}, {}<br>May'.format(gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
         self.gls_string = '{}<br>{}, {} May'.format(gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
@@ -98,15 +98,15 @@ def build_html(post_obj, uprn):
     with open('./out/template-front.html', 'r') as address_file:
         # Fills in the address information on the correct HTML lines
         address_page = address_file.readlines()
-        address_page[20] = '\t\t<div class="address">{}</div>\n'.format(post_obj.address)
+        address_page[25] = '\t\t<div class="address">{}</div>\n'.format(post_obj.address)
 
     with open('./out/template-back.html', 'r') as calendar_file:
         calendar_page = calendar_file.readlines()
         # Fills in the collection information on the correct HTML lines
-        calendar_page[54] = '\t\t\t\t{}\n'.format(post_obj.calendar.ref_string)
-        calendar_page[59] = '\t\t\t\t{}\n'.format(post_obj.calendar.recy_string)
-        calendar_page[64] = '\t\t\t\t{}\n'.format(post_obj.calendar.gls_string)
-        calendar_page[69] = '\t\t\t\t{}\n'.format(post_obj.calendar.gw_string)
+        calendar_page[59] = '\t\t\t\t{}\n'.format(post_obj.calendar.ref_string)
+        calendar_page[64] = '\t\t\t\t{}\n'.format(post_obj.calendar.recy_string)
+        calendar_page[69] = '\t\t\t\t{}\n'.format(post_obj.calendar.gls_string)
+        calendar_page[74] = '\t\t\t\t{}\n'.format(post_obj.calendar.gw_string)
 
     address_out_name = './out/{}-addr.html'.format(uprn)
     calendar_out_name = './out/{}-cal.html'.format(uprn)

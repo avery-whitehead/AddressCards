@@ -6,5 +6,5 @@ foreach ($uprn in $uprns) {
     $addrParam = "$outputFolder\$uprn-addr.html"
     $calParam = "$outputFolder\$uprn-cal.html"
     $output = "$uprn.pdf"
-    Invoke-Expression "& .\wkhtmltopdf.exe --page-width '210mm' --page-height '148mm' `"$addrParam`" `"$calParam`" $output"
+    Invoke-Expression "& .\wkhtmltopdf.exe --margin-top 0 --margin-bottom 0 --margin-left 0 --margin-right 0 --disable-smart-shrinking --page-width '2480px' --page-height '1754px' `"$addrParam`" `"$calParam`" $output"
 }
