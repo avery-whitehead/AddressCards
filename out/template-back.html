@@ -3,46 +3,73 @@
 <head>
     <style>
         .container {
-            text-align: center;
             position: relative;
             font-family: "Impact";
             color: white;
         }
 
         .bin {
-            position: absolute;
-            font-size: 40px;
+            font-size: 36px;
             transform: rotate(-4deg);
+            text-align: center;
         }
 
         .black-date {
-            left: 235px;
-            top: 757px;
+            position: absolute;
+            width: 170px;
+            height: 120px;
+            left: 240px;
+            top: 750px;
         }
 
         .recy-bin-date {
+            position: absolute;
+            width: 170px;
+            height: 120px;
             left: 670px;
-            top: 757px;
+            top: 750px;
         }
 
         .recy-box-date {
-            left: 1120px;
-            top: 757px;
+            position: absolute;
+            width: 170px;
+            height: 85px;
+            left: 1110px;
+            top: 765px;
         }
 
         .green-bin-date {
-            left: 1535px;
-            top: 757px;
+            position: absolute;
+            width: 170px;
+            height: 85px;
+            left: 1530px;
+            top: 750px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <img src="./postcard-back.jpg" style="width: 100%">
-		<div class="bin black-date">Thursday<br>10, 24 May</div>
-        <div class="bin recy-bin-date">Thursday<br>10, 24 May</div>
-        <div class="bin recy-box-date">Thursday<br>10, 24 May</div>
-        <div class="bin green-bin-date">Thursday<br>10, 24 May</div>
+        <div class="black-date">
+            <div class="bin">
+                Wednesday<br>10, 24<br>May
+            </div>
+        </div>
+        <div class="recy-bin-date">
+            <div class="bin">
+                Friday<br>10, 24<br>May
+            </div>
+        </div>
+        <div class="recy-box-date">
+            <div class="bin">
+                Wednesday<br>10, 24 May
+            </div>
+        </div>
+        <div class="green-bin-date">
+            <div class="bin">
+                No<br>collection
+            </div>
+        </div>
     </div>
 </body>
 </html>
