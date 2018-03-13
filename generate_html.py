@@ -103,10 +103,10 @@ def build_html(post_obj, uprn):
     with open('./out/template-back.html', 'r') as calendar_file:
         calendar_page = calendar_file.readlines()
         # Fills in the collection information on the correct HTML lines
-        calendar_page[59] = '\t\t\t\t{}\n'.format(post_obj.calendar.ref_string)
-        calendar_page[64] = '\t\t\t\t{}\n'.format(post_obj.calendar.recy_string)
-        calendar_page[69] = '\t\t\t\t{}\n'.format(post_obj.calendar.gls_string)
-        calendar_page[74] = '\t\t\t\t{}\n'.format(post_obj.calendar.gw_string)
+        calendar_page[60] = '\t\t\t\t{}\n'.format(post_obj.calendar.ref_string)
+        calendar_page[65] = '\t\t\t\t{}\n'.format(post_obj.calendar.recy_string)
+        calendar_page[70] = '\t\t\t\t{}\n'.format(post_obj.calendar.gls_string)
+        calendar_page[75] = '\t\t\t\t{}\n'.format(post_obj.calendar.gw_string)
 
     address_out_name = './out/{}-addr.html'.format(uprn)
     calendar_out_name = './out/{}-cal.html'.format(uprn)
