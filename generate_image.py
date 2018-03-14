@@ -1,6 +1,6 @@
 import pyodbc
 import json
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 from enum import Enum
 
 
@@ -38,14 +38,14 @@ class Calendar:
         Recycling bin days/weeks and glass bin days/weeks are often the same
 
     Args:
-        ref_day (str): The day normal refuse bins are collected
-        ref_week (str): The week normal refuse bins are collected
-        recy_day (str): The day recycling bins are collected
-        recy_week (str): The week recycling bins are collected
-        gw_day (str): The day garden waste bins are collected
-        gw_week (str): The week garden waste bins are collected
-        gls_day (str): The day glass refuse bins are collected
-        gls_week (str): The week glass refuse bins are collected
+        ref_day (str)
+        ref_week (str)
+        recy_day (str)
+        recy_week (str)
+        gw_day (str)
+        gw_week (str)
+        gls_day (str)
+        gls_week (str)
     """
     def __init__(self, ref_day, ref_week, recy_day, recy_week, gw_day, gw_week, gls_day, gls_week):
         dates = {
@@ -55,7 +55,7 @@ class Calendar:
             'Thursday': 10,
             'Friday': 11
         }
-        # Strings representing the text that will be shown for each collection
+        # Represents the text that will be shown for each collection
         self.ref_string = '{}\n{}, {}\nMay'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
         self.recy_string = '{}\n{}, {}\nMay'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
         if gw_day == '-':
@@ -98,14 +98,25 @@ def build_image(post_obj_list, uprn_list):
         BOTTOM_RIGHT = 3
 
     addr_font = ImageFont.truetype('arial.ttf', 60)
-    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 45)
+    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 62)
 
-    addr_img = Image.open('./out/postcard-front-4x4.png')
-    cal_img = Image.open('./out/postcard-back-4x4.png')
+    addr_img = Image.open('./out/postcard-front-4x4.png').convert('RGBA')
+    cal_img = Image.open('./out/postcard-back-4x4.png').convert('RGBA')
 
-    # Opens the drawing contexts
-    addr_draw = ImageDraw.Draw(addr_img)
-    cal_draw = ImageDraw.Draw(cal_img)
+    for position, postcard in enumerate(post_obj_list):
+        if position == Positions.TOP_LEFT.value:
+            # Creates a box to hold the text in
+            text_box = Image.new('L', (250, 330))
+            text_draw = ImageDraw.Draw(text_box)
+            # Writes the text to the box
+            text_draw.text((0, 0), postcard.calendar.ref_string, font=cal_font, fill=255)
+            # Rotates the box
+            rotate = text_box.rotate(4, resample=Image.BICUBIC, expand=True)
+            # Overlays the rotated box on to the image
+            cal_img.paste(ImageOps.colorize(rotate, (0, 0, 0), (255, 255, 255)), (310, 890), rotate)
+
+    cal_img.save('new.png')
+
 
 
 if __name__ == '__main__':
@@ -125,6 +136,7 @@ if __name__ == '__main__':
         for uprn in uprn_list:
             postcard = build_postcard(conn, uprn)
             postcard_list.append(postcard)
+        build_image(postcard_list, uprn_list)
 
 
     conn.close()
