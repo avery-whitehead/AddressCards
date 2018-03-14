@@ -1,5 +1,6 @@
 import pyodbc
 import json
+import textwrap
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from enum import Enum
 
@@ -56,13 +57,13 @@ class Calendar:
             'Friday': 11
         }
         # Represents the text that will be shown for each collection
-        self.ref_string = '{}\n{}, {}\nMay'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
-        self.recy_string = '{}\n{}, {}\nMay'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
+        self.ref_string = '{} {}, {} May'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
+        self.recy_string = '{} {}, {} May'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
         if gw_day == '-':
-            self.gw_string = 'Not\ncollected'
+            self.gw_string = 'Not collected'
         else:
-            self.gw_string = '{}\n{}, {}\nMay'.format(gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
-        self.gls_string = '{}\n{}, {} May'.format(gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
+            self.gw_string = '{} {}, {} May'.format(gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
+        self.gls_string = '{} {}, {} May'.format(gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
 
 
 def build_postcard(conn, uprn):
@@ -98,26 +99,34 @@ def build_image(post_obj_list, uprn_list):
         BOTTOM_RIGHT = 3
 
     addr_font = ImageFont.truetype('arial.ttf', 60)
-    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 62)
+    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 65)
 
     addr_img = Image.open('./out/postcard-front-4x4.png').convert('RGBA')
     cal_img = Image.open('./out/postcard-back-4x4.png').convert('RGBA')
 
     for position, postcard in enumerate(post_obj_list):
         if position == Positions.TOP_LEFT.value:
+            # Wraps the string over separate lines
+            string = textwrap.wrap(postcard.calendar.ref_string, width=9)
             # Creates a box to hold the text in
             text_box = Image.new('L', (250, 330))
             text_draw = ImageDraw.Draw(text_box)
-            # Writes the text to the box
-            text_draw.text((0, 0), postcard.calendar.ref_string, font=cal_font, fill=255)
+            # The current height in the box
+            curr_h = 50
+            # The padding between lines
+            pad = 10
+            for line in string:
+                # Calculates the width and height of each line
+                w, h = text_draw.textsize(line, font=cal_font)
+                # Writes the text to the box using the width and height so it's centre aligned
+                text_draw.text(((250 - w) / 2, curr_h), line, font=cal_font, fill=255)
+                # Move the height cursor down
+                curr_h += h + pad
             # Rotates the box
             rotate = text_box.rotate(4, resample=Image.BICUBIC, expand=True)
             # Overlays the rotated box on to the image
-            cal_img.paste(ImageOps.colorize(rotate, (0, 0, 0), (255, 255, 255)), (310, 890), rotate)
-
+            cal_img.paste(ImageOps.colorize(rotate, (0, 0, 0), (255, 255, 255)), (290, 890), rotate)
     cal_img.save('new.png')
-
-
 
 if __name__ == '__main__':
     pyodbc.pooling = False
@@ -137,6 +146,5 @@ if __name__ == '__main__':
             postcard = build_postcard(conn, uprn)
             postcard_list.append(postcard)
         build_image(postcard_list, uprn_list)
-
 
     conn.close()
