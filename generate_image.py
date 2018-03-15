@@ -149,7 +149,7 @@ def build_all_images(postcard_list, uprn_list):
         # Overlays each box on to the image
         for text_box in text_boxes:
             cal_img.paste(ImageOps.colorize(
-                text_box.text_image, (0, 0, 0), (255, 255, 255)),
+                text_box.text_image, (255, 255, 255), (255, 255, 255)),
                 ((text_box.x_coord + text_box.x_offset), (text_box.y_coord + text_box.y_offset)), text_box.text_image)
 
         address = build_address(postcard, 220, 610, position)
@@ -188,7 +188,7 @@ def build_one_image(postcard, position):
     gw_text = build_text(gw_string, 260, 350, 2000, 890, position, 4)
     # Glass box is unused by most postcards - need to add a special flag for the properties that are
     gls_text = build_text(gls_string, 0, 0, 0, 0, position, 2)
-    #gls_text = build_text(gls_string, 310, 180, 1420, 980, position, 2)
+    # gls_text = build_text(gls_string, 310, 180, 1420, 980, position, 2)
 
     # Returns the text boxes
     return [ref_text, recy_text, gw_text, gls_text]
