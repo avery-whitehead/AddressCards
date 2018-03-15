@@ -65,6 +65,7 @@ class Calendar:
             self.gw_string = '{} {}, {} May'.format(gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
         self.gls_string = '{} {}, {} May'.format(gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
 
+
 class TextBox:
     """ Represents an image to hold some collection data text in
 
@@ -196,7 +197,6 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
     text_box = Image.new('L', (width, height))
     text_draw = ImageDraw.Draw(text_box)
 
-
     # The padding between lines
     pad = 10
     # The current height in the box
@@ -216,12 +216,22 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
 
 
 def build_address(postcard, x_coord, y_coord, position):
+    """ Creates a text box to contain the address of a property
+
+    Args:
+        postcard(:obj:Postcard): A Postcard object used to get the address data
+        x_coord(int): The x-coordinate of the top-left corner of the text box on the single image (pixels)
+        y_coord(int): The y-coordinate of the top-left corner of the text box on the single image (pixels)
+        position(int): The position of the single image in the overall image
+    """
     addr_font = ImageFont.truetype('arial.ttf', 120)
 
+    # Changes HTML line break to Python line break
     addr_string = (postcard.address).replace('<br>', '\n')
     text_box = Image.new('L', (1900, 850))
     text_draw = ImageDraw.Draw(text_box)
     text_draw.multiline_text((0, 0), addr_string, font=addr_font, fill=255, spacing=20)
+
     return TextBox(text_box, x_coord, y_coord, position)
 
 
