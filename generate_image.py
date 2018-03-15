@@ -72,10 +72,10 @@ class TextBox:
 
     Args:
         text_image (obj:PIL.Image.Image): An image containing the text
-        x_coord(int): How far along the x-coordinate the text box should be placed on the base image
-        y_coord(int): How far along the y-coordinate the text box should be placed on the base image
-        x_offset(int): How far along the x-coordinate the base image itself is (calculated based on position)
-        y_offset(int): How far along the y-coordinate the base image itself is (calculated based on position)
+        x_coord(int): How far along the x co-ordinate the text box should be placed on the base image
+        y_coord(int): How far along the y co-ordinate the text box should be placed on the base image
+        x_offset(int): How far along the x co-ordinate the base image itself is (calculated based on position)
+        y_offset(int): How far along the y co-ordinate the base image itself is (calculated based on position)
     """
     def __init__(self, text_image, x_coord, y_coord, position):
         self.text_image = text_image
@@ -183,10 +183,12 @@ def build_one_image(postcard, position):
     gls_string = textwrap.wrap(postcard.calendar.gls_string, width=12)
 
     # Creates the text boxes
-    ref_text = build_text(ref_string, 260, 350, 250, 890, position, 4)
+    ref_text = build_text(ref_string, 260, 350, 285, 890, position, 4)
     recy_text = build_text(recy_string, 260, 350, 860, 890, position, 4)
     gw_text = build_text(gw_string, 260, 350, 2000, 890, position, 4)
-    gls_text = build_text(gls_string, 310, 180, 1420, 980, position, 2)
+    # Glass box is unused by most postcards - need to add a special flag for the properties that are
+    gls_text = build_text(gls_string, 0, 0, 0, 0, position, 2)
+    #gls_text = build_text(gls_string, 310, 180, 1420, 980, position, 2)
 
     # Returns the text boxes
     return [ref_text, recy_text, gw_text, gls_text]
@@ -199,8 +201,8 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
         string(str): The string contained in the text box
         width(int): The width of the text box (pixels)
         height(int): The height of the text box (pixels)
-        x_coord(int): The x-coordinate of the top-left corner of the text box on the single image (pixels)
-        y_coord(int): The y-coordinate of the top-left corner of the text box on the single image (pixels)
+        x_coord(int): The x co-ordinate of the top-left corner of the text box on the single image (pixels)
+        y_coord(int): The y co-ordinate of the top-left corner of the text box on the single image (pixels)
         position(int): The position of the single image in the overall image
         rotation(int): The angular rotation to draw the text box at (degrees)
 
@@ -236,8 +238,8 @@ def build_address(postcard, x_coord, y_coord, position):
 
     Args:
         postcard(obj:Postcard): A Postcard object used to get the address data
-        x_coord(int): The x-coordinate of the top-left corner of the text box on the single image (pixels)
-        y_coord(int): The y-coordinate of the top-left corner of the text box on the single image (pixels)
+        x_coord(int): The x co-ordinate of the top-left corner of the text box on the single image (pixels)
+        y_coord(int): The y co-ordinate of the top-left corner of the text box on the single image (pixels)
         position(int): The position of the single image in the overall image
 
     Returns:
