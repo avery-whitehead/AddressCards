@@ -157,7 +157,6 @@ def build_all_images(postcard_list, uprn_list):
             address.text_image, (0, 0, 0), (0, 0, 0)),
             ((address.x_coord + address.x_offset), (address.y_coord + address.y_offset)), address.text_image)
 
-
     addr_file = './out/addr-{}.pdf'.format('-'.join(uprn_list))
     cal_file = './out/cal-{}.pdf'.format('-'.join(uprn_list))
 
@@ -291,7 +290,6 @@ def append_pdfs(paths, uprns):
     return 'Created PDF {}'.format(out_file)
 
 
-
 if __name__ == '__main__':
     pyodbc.pooling = False
     conn_data = DatabaseConn()
@@ -314,6 +312,5 @@ if __name__ == '__main__':
         paths = build_all_images(postcard_list, uprn_list)
         status = append_pdfs(paths, uprn_list)
         print(status)
-
 
     conn.close()
