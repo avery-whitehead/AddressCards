@@ -184,13 +184,18 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
     """
     addr_font = ImageFont.truetype('arial.ttf', 60)
     cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 57)
+
     # Creates a box to hold the text in
     text_box = Image.new('L', (width, height))
     text_draw = ImageDraw.Draw(text_box)
-    # The current height in the box
-    curr_h = 50
+
+
     # The padding between lines
     pad = 10
+    # The current height in the box
+    curr_h = 50
+    
+    # Writes each line to the text box
     for line in string:
         # Calculates the width and height of each line
         w, h = text_draw.textsize(line, font=cal_font)
@@ -198,6 +203,7 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
         text_draw.text(((250 - w) / 2, curr_h), line, font=cal_font, fill=255)
         # Move the height cursor down
         curr_h += h + pad
+
     # Rotates the box
     return TextBox(text_box.rotate(rotation, resample=Image.BICUBIC, expand=True), x_coord, y_coord, position)
 
