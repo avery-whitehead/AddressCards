@@ -9,7 +9,7 @@ class DatabaseConn:
     """ Represents a pyodbc connection string. Reads the attributes from a config file
     """
     def __init__(self):
-        with open('generate_html.config') as config_file:
+        with open('.config') as config_file:
             config = json.load(config_file)
             self.driver = config['driver']
             self.server = config['server']
@@ -123,14 +123,14 @@ def build_postcard(conn, uprn):
 
 
 def build_all_images(postcard_list, uprn_list):
-    """ Given a list of four postcards and UPRNs, pastes text boxes on to each bin section in each card
+    """ Given a list of four postcards and UPRNs, pastes text boxes on to each bin section in each card and saves as PDF
 
     Args:
         postcard_list(list:Postcard): A list of four (or less) Postcard objects
         uprn_list(list:): An equivalent list of four (or less) UPRNs
     """
-    addr_img = Image.open('./out/postcard-front-4x4.png').convert('RGBA')
-    cal_img = Image.open('./out/postcard-back-4x4.png').convert('RGBA')
+    addr_img = Image.open('./out/postcard-front-4x4.png')
+    cal_img = Image.open('./out/postcard-back-4x4.png')
     addr_img.load()
     cal_img.load()
 
@@ -143,8 +143,16 @@ def build_all_images(postcard_list, uprn_list):
                 text_box.text_image, (0, 0, 0), (255, 255, 255)),
                 ((text_box.x_coord + text_box.x_offset), (text_box.y_coord + text_box.y_offset)), text_box.text_image)
 
-    out_file = 'cal-{}.png'.format('-'.join(uprn_list))
-    cal_img.save(out_file)
+        address = build_address(postcard, 220, 610, position)
+        addr_img.paste(ImageOps.colorize(
+            address.text_image, (0, 0, 0), (0, 0, 0)),
+            ((address.x_coord + address.x_offset), (address.y_coord + address.y_offset)), address.text_image)
+
+    cal_file = 'cal-{}.pdf'.format('-'.join(uprn_list))
+    addr_file = 'addr-{}.pdf'.format('-'.join(uprn_list))
+
+    cal_img.save(cal_file, 'PDF', resolution=100.0, quality=100)
+    addr_img.save(addr_file, 'PDF', resolution=100.0, quality=100)
 
 
 def build_one_image(postcard, position):
@@ -182,7 +190,6 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
         position(int): The position of the single image in the overall image
         rotation(int): The angular rotation to draw the text box at (degrees)
     """
-    addr_font = ImageFont.truetype('arial.ttf', 60)
     cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 57)
 
     # Creates a box to hold the text in
@@ -194,7 +201,7 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
     pad = 10
     # The current height in the box
     curr_h = 50
-    
+
     # Writes each line to the text box
     for line in string:
         # Calculates the width and height of each line
@@ -206,6 +213,16 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
 
     # Rotates the box
     return TextBox(text_box.rotate(rotation, resample=Image.BICUBIC, expand=True), x_coord, y_coord, position)
+
+
+def build_address(postcard, x_coord, y_coord, position):
+    addr_font = ImageFont.truetype('arial.ttf', 120)
+
+    addr_string = (postcard.address).replace('<br>', '\n')
+    text_box = Image.new('L', (1900, 850))
+    text_draw = ImageDraw.Draw(text_box)
+    text_draw.multiline_text((0, 0), addr_string, font=addr_font, fill=255, spacing=20)
+    return TextBox(text_box, x_coord, y_coord, position)
 
 
 if __name__ == '__main__':
