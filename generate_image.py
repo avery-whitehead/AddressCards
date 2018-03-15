@@ -24,7 +24,7 @@ class Postcard:
 
     Args:
         address (str): An address block, each line separated with HTML <br> tags
-        calendar (:obj:Calendar): A Calendar object containing collection information
+        calendar (obj:Calendar): A Calendar object containing collection information
     """
     def __init__(self, address, calendar):
         self.address = address
@@ -71,7 +71,7 @@ class TextBox:
     """ Represents an image to hold some collection data text in
 
     Args:
-        text_image (:obj:PIL.Image.Image): An image containing the text
+        text_image (obj:PIL.Image.Image): An image containing the text
         x_coord(int): How far along the x-coordinate the text box should be placed on the base image
         y_coord(int): How far along the y-coordinate the text box should be placed on the base image
         x_offset(int): How far along the x-coordinate the base image itself is (calculated based on position)
@@ -103,8 +103,11 @@ def build_postcard(conn, uprn):
     """ Creates a Postcard object for a property
 
     Args:
-        conn (:obj:pyodbc.Connection): An open pyodbc database connection object
+        conn (obj:pyodbc.Connection): An open pyodbc database connection object
         uprn (str): A UPRN (Unique Property Reference Number) to look up on the database
+
+    Returns:
+        (obj:Postcard): A Postcard object containing the address and calendar data
     """
     cursor = conn.cursor()
     with open('./cal_query.sql', 'r') as query_file:
@@ -130,7 +133,10 @@ def build_all_images(postcard_list, uprn_list):
 
     Args:
         postcard_list(list:Postcard): A list of four (or less) Postcard objects
-        uprn_list(list:): An equivalent list of four (or less) UPRNs
+        uprn_list(list:str): An equivalent list of four (or less) UPRNs
+
+    Returns:
+        (list:str) A list of the file paths for the two created PDFs
     """
     addr_img = Image.open('./in/postcard-front-4x4.png')
     cal_img = Image.open('./in/postcard-back-4x4.png')
@@ -165,8 +171,11 @@ def build_one_image(postcard, position):
     """ Given a single postcard, creates the strings and calls buiild_text to create the four text boxes for each bin
 
     Args:
-        postcard(:obj:Postcard): A Postcard object used to get the string data
+        postcard(obj:Postcard): A Postcard object used to get the string data
         position: The position [top-left, top-right, bottom-left, bottom-right] of this postcard in the image
+
+    Returns:
+        (list:obj:TextBox): A list of the four TextBox objects used in each calendar image
     """
     # Wraps the strings over separate lines
     ref_string = textwrap.wrap(postcard.calendar.ref_string, width=9)
@@ -188,13 +197,16 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
     """ Creates a text box to be overlaid on to a single bin in the overall image
 
     Args:
-        string(string): The string contained in the text box
+        string(str): The string contained in the text box
         width(int): The width of the text box (pixels)
         height(int): The height of the text box (pixels)
         x_coord(int): The x-coordinate of the top-left corner of the text box on the single image (pixels)
         y_coord(int): The y-coordinate of the top-left corner of the text box on the single image (pixels)
         position(int): The position of the single image in the overall image
         rotation(int): The angular rotation to draw the text box at (degrees)
+
+    Returns:
+        (obj:TextBox): A TextBox object containing the collection days
     """
     cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 57)
 
@@ -224,10 +236,13 @@ def build_address(postcard, x_coord, y_coord, position):
     """ Creates a text box to contain the address of a property
 
     Args:
-        postcard(:obj:Postcard): A Postcard object used to get the address data
+        postcard(obj:Postcard): A Postcard object used to get the address data
         x_coord(int): The x-coordinate of the top-left corner of the text box on the single image (pixels)
         y_coord(int): The y-coordinate of the top-left corner of the text box on the single image (pixels)
         position(int): The position of the single image in the overall image
+
+    Returns:
+        (obj:TextBox): A TextBox containing the address of the property
     """
     addr_font = ImageFont.truetype('arial.ttf', 120)
 
@@ -241,6 +256,15 @@ def build_address(postcard, x_coord, y_coord, position):
 
 
 def append_pdfs(paths, uprns):
+    """ Appends the two created PDFs into one file
+
+    Args:
+        paths(list:str): The file paths of the two PDFs to append
+        uprns(list:str): The UPRNs of the postcards in the PDF
+
+    Returns:
+        (str): A success message with the name of the file created
+    """
     # Opens the two PDFs
     combined = PdfFileWriter()
     first_file = open(paths[0], 'rb')
@@ -264,6 +288,8 @@ def append_pdfs(paths, uprns):
     os.remove(paths[0])
     os.remove(paths[1])
 
+    return 'Created PDF {}'.format(out_file)
+
 
 
 if __name__ == '__main__':
@@ -286,7 +312,8 @@ if __name__ == '__main__':
             postcard = build_postcard(conn, uprn)
             postcard_list.append(postcard)
         paths = build_all_images(postcard_list, uprn_list)
-        append_pdfs(paths, uprn_list)
+        status = append_pdfs(paths, uprn_list)
+        print(status)
 
 
     conn.close()
