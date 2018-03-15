@@ -1,8 +1,9 @@
 import pyodbc
 import json
 import textwrap
+import os
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-from enum import Enum
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
 
 class DatabaseConn:
@@ -120,6 +121,7 @@ def build_postcard(conn, uprn):
         # Cleans up leftover cursors
         cursor.close()
         del cursor
+
         return post_obj
 
 
@@ -130,8 +132,8 @@ def build_all_images(postcard_list, uprn_list):
         postcard_list(list:Postcard): A list of four (or less) Postcard objects
         uprn_list(list:): An equivalent list of four (or less) UPRNs
     """
-    addr_img = Image.open('./out/postcard-front-4x4.png')
-    cal_img = Image.open('./out/postcard-back-4x4.png')
+    addr_img = Image.open('./in/postcard-front-4x4.png')
+    cal_img = Image.open('./in/postcard-back-4x4.png')
     addr_img.load()
     cal_img.load()
 
@@ -149,11 +151,14 @@ def build_all_images(postcard_list, uprn_list):
             address.text_image, (0, 0, 0), (0, 0, 0)),
             ((address.x_coord + address.x_offset), (address.y_coord + address.y_offset)), address.text_image)
 
-    cal_file = 'cal-{}.pdf'.format('-'.join(uprn_list))
-    addr_file = 'addr-{}.pdf'.format('-'.join(uprn_list))
 
-    cal_img.save(cal_file, 'PDF', resolution=100.0, quality=100)
+    addr_file = './out/addr-{}.pdf'.format('-'.join(uprn_list))
+    cal_file = './out/cal-{}.pdf'.format('-'.join(uprn_list))
+
     addr_img.save(addr_file, 'PDF', resolution=100.0, quality=100)
+    cal_img.save(cal_file, 'PDF', resolution=100.0, quality=100)
+
+    return [addr_file, cal_file]
 
 
 def build_one_image(postcard, position):
@@ -235,6 +240,32 @@ def build_address(postcard, x_coord, y_coord, position):
     return TextBox(text_box, x_coord, y_coord, position)
 
 
+def append_pdfs(paths, uprns):
+    # Opens the two PDFs
+    combined = PdfFileWriter()
+    first_file = open(paths[0], 'rb')
+    second_file = open(paths[1], 'rb')
+    first = PdfFileReader(first_file)
+    second = PdfFileReader(second_file)
+
+    # Creates the combined PDF
+    combined.addPage(first.getPage(0))
+    combined.addPage(second.getPage(0))
+
+    # Writes the combined PDF to file
+    out_file = './out/{}.pdf'.format('-'.join(uprns))
+    stream = open(out_file, 'wb')
+    combined.write(stream)
+    stream.close()
+
+    # Cleans up the separate PDFs
+    first_file.close()
+    second_file.close()
+    os.remove(paths[0])
+    os.remove(paths[1])
+
+
+
 if __name__ == '__main__':
     pyodbc.pooling = False
     conn_data = DatabaseConn()
@@ -254,6 +285,8 @@ if __name__ == '__main__':
             # Creates a Postcard object for each UPRN
             postcard = build_postcard(conn, uprn)
             postcard_list.append(postcard)
-        build_all_images(postcard_list, uprn_list)
+        paths = build_all_images(postcard_list, uprn_list)
+        append_pdfs(paths, uprn_list)
+
 
     conn.close()
