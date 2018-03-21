@@ -83,20 +83,20 @@ class TextBox:
         self.y_coord = y_coord
         # Top left
         if position == 0:
-            self.x_offset = 0
-            self.y_offset = 0
+            self.x_offset = 66
+            self.y_offset = 44
         # Top right
         if position == 1:
-            self.x_offset = 2480
-            self.y_offset = 0
+            self.x_offset = 1773
+            self.y_offset = 44
         # Bottom left
         if position == 2:
-            self.x_offset = 0
-            self.y_offset = 1754
+            self.x_offset = 66
+            self.y_offset = 1263
         # Bottom right
         if position == 3:
-            self.x_offset = 2480
-            self.y_offset = 1754
+            self.x_offset = 1773
+            self.y_offset = 1263
 
 
 def build_postcard(conn, uprn):
@@ -138,8 +138,8 @@ def build_all_images(postcard_list, uprn_list):
     Returns:
         (list:str) A list of the file paths for the two created PDFs
     """
-    addr_img = Image.open('./in/postcard-front-4x4.png')
-    cal_img = Image.open('./in/postcard-back-4x4.png')
+    addr_img = Image.open('./in/postcard-front-4x4.png').convert('RGB')
+    cal_img = Image.open('./in/postcard-back-4x4.png').convert('RGB')
     addr_img.load()
     cal_img.load()
 
@@ -149,10 +149,11 @@ def build_all_images(postcard_list, uprn_list):
         # Overlays each box on to the image
         for text_box in text_boxes:
             cal_img.paste(ImageOps.colorize(
+                # Fill and outline RGB values of text
                 text_box.text_image, (255, 255, 255), (255, 255, 255)),
                 ((text_box.x_coord + text_box.x_offset), (text_box.y_coord + text_box.y_offset)), text_box.text_image)
 
-        address = build_address(postcard, 220, 610, position)
+        address = build_address(postcard, 400, 300, position)
         addr_img.paste(ImageOps.colorize(
             address.text_image, (0, 0, 0), (0, 0, 0)),
             ((address.x_coord + address.x_offset), (address.y_coord + address.y_offset)), address.text_image)
@@ -183,12 +184,12 @@ def build_one_image(postcard, position):
     gls_string = textwrap.wrap(postcard.calendar.gls_string, width=12)
 
     # Creates the text boxes
-    ref_text = build_text(ref_string, 260, 350, 285, 890, position, 4)
-    recy_text = build_text(recy_string, 260, 350, 860, 890, position, 4)
-    gw_text = build_text(gw_string, 260, 350, 2000, 890, position, 4)
+    ref_text = build_text(ref_string, 260, 350, 155, 580, position, 4)
+    recy_text = build_text(recy_string, 260, 350, 545, 580, position, 4)
+    gw_text = build_text(gw_string, 260, 350, 1325, 580, position, 4)
     # Glass box is unused by most postcards - need to add a special flag for the properties that are
-    gls_text = build_text(gls_string, 0, 0, 0, 0, position, 2)
-    # gls_text = build_text(gls_string, 310, 180, 1420, 980, position, 2)
+    # gls_text = build_text(gls_string, 0, 0, 0, 0, position, 2)
+    gls_text = build_text(gls_string, 380, 230, 880, 620, position, 4)
 
     # Returns the text boxes
     return [ref_text, recy_text, gw_text, gls_text]
@@ -209,7 +210,7 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
     Returns:
         (obj:TextBox): A TextBox object containing the collection days
     """
-    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 57)
+    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 42)
 
     # Creates a box to hold the text in
     text_box = Image.new('L', (width, height))
@@ -225,7 +226,7 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
         # Calculates the width and height of each line
         w, h = text_draw.textsize(line, font=cal_font)
         # Writes the text to the box using the width and height so it's centre aligned
-        text_draw.text(((250 - w) / 2, curr_h), line, font=cal_font, fill=255)
+        text_draw.text(((width - w) / 2, curr_h), line, font=cal_font, fill=255)
         # Move the height cursor down
         curr_h += h + pad
 
@@ -245,7 +246,7 @@ def build_address(postcard, x_coord, y_coord, position):
     Returns:
         (obj:TextBox): A TextBox containing the address of the property
     """
-    addr_font = ImageFont.truetype('arial.ttf', 120)
+    addr_font = ImageFont.truetype('arial.ttf', 60)
 
     # Changes HTML line break to Python line break
     addr_string = (postcard.address).replace('<br>', '\n')
