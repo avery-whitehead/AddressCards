@@ -1,9 +1,25 @@
-import pyodbc
+""" generate_image.py
+
+Generates some postcards using some LLPG data.
+Looks up some address and collection details and uses Pillow to write this on to a template
+
+Example:
+    To run from the AddressCards directory:
+    py -3 .\generate_image.py
+
+Todo:
+    Functionality to read in UPRNs from file in groups of four instead
+    of list of lists
+    When recycling bin and box days are the same, don't render box dates
+    React to any changes made to the template
+"""
+
 import json
 import textwrap
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from PyPDF2 import PdfFileReader, PdfFileWriter
+import pyodbc
 
 
 class DatabaseConn:
@@ -32,7 +48,7 @@ class Postcard:
 
 
 class Calendar:
-    """ Represents a collection calendar, detailing which bin is collected on which day on which week
+    """ Represents a collection calendar, detailing which bin is collected on which day
 
     Note:
         Potential day values: Monday, Tuesday, Wednesday, Thursday, Friday
@@ -49,7 +65,7 @@ class Calendar:
         gls_day (str)
         gls_week (str)
     """
-    def __init__(self, ref_day, ref_week, recy_day, recy_week, gw_day, gw_week, gls_day, gls_week):
+    def __init__(self, ref_day, recy_day, gw_day, gls_day):
         dates = {
             'Monday': 7,
             'Tuesday': 8,
@@ -58,13 +74,17 @@ class Calendar:
             'Friday': 11
         }
         # Represents the text that will be shown for each collection
-        self.ref_string = '{} {}, {} May'.format(ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
-        self.recy_string = '{} {}, {} May'.format(recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
+        self.ref_str = '{} {}, {} May'.format(
+            ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
+        self.recy_str = '{} {}, {} May'.format(
+            recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
         if gw_day == '-':
-            self.gw_string = 'Not collected'
+            self.gw_str = 'Not collected'
         else:
-            self.gw_string = '{} {}, {} May'.format(gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
-        self.gls_string = '{} {}, {} May'.format(gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
+            self.gw_str = '{} {}, {} May'.format(
+                gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
+        self.gls_str = '{} {}, {} May'.format(
+            gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
 
 
 class TextBox:
@@ -72,10 +92,10 @@ class TextBox:
 
     Args:
         text_image (obj:PIL.Image.Image): An image containing the text
-        x_coord(int): How far along the x co-ordinate the text box should be placed on the base image
-        y_coord(int): How far along the y co-ordinate the text box should be placed on the base image
-        x_offset(int): How far along the x co-ordinate the base image itself is (calculated based on position)
-        y_offset(int): How far along the y co-ordinate the base image itself is (calculated based on position)
+        x_coord(int): How far along the x co-ord the text box should be placed on the base image
+        y_coord(int): How far along the y co-ord the text box should be placed on the base image
+        x_offset(int): How far along the x co-ord the base image itself is (uses position)
+        y_offset(int): How far along the y co-ord the base image itself is (uses position)
     """
     def __init__(self, text_image, x_coord, y_coord, position):
         self.text_image = text_image
@@ -99,25 +119,25 @@ class TextBox:
             self.y_offset = 1263
 
 
-def build_postcard(conn, uprn):
+def build_postcard(connector, card_uprn):
     """ Creates a Postcard object for a property
 
     Args:
-        conn (obj:pyodbc.Connection): An open pyodbc database connection object
+        connector (obj:pyodbc.Connection): An open pyodbc database connection object
         uprn (str): A UPRN (Unique Property Reference Number) to look up on the database
 
     Returns:
         (obj:Postcard): A Postcard object containing the address and calendar data
     """
-    cursor = conn.cursor()
+    cursor = connector.cursor()
     with open('./cal_query.sql', 'r') as query_file:
         query = query_file.read()
-        # Runs the SQL query to return an address block and collection information associated with a UPRN
-        cursor.execute(query, uprn)
+        # Runs the SQL query to return an address block and collection information
+        cursor.execute(query, card_uprn)
         row = cursor.fetchone()
         # Builds a Calendar object based on the collection information
         cal_obj = Calendar(
-            row.REFDay, row.REFWeek, row.RECYDay, row.RECYWeek, row.GWDay, row.GWWeek, row.RECYDay, row.RECYWeek)
+            row.REFDay, row.RECYDay, row.GWDay, row.RECYDay)
         # Builds a Postcard object based on the address and collection calendar
         post_obj = Postcard(row.addressBlock, cal_obj)
 
@@ -128,12 +148,13 @@ def build_postcard(conn, uprn):
         return post_obj
 
 
-def build_all_images(postcard_list, uprn_list):
-    """ Given a list of four postcards and UPRNs, pastes text boxes on to each bin section in each card and saves as PDF
+def build_all_images(postcard_lst, uprn_lst):
+    """ Given a list of four postcards and UPRNs, pastes text boxes on to each bin section in
+    each card and saves as PDF
 
     Args:
-        postcard_list(list:Postcard): A list of four (or less) Postcard objects
-        uprn_list(list:str): An equivalent list of four (or less) UPRNs
+        postcard_lst(list:Postcard): A list of four (or less) Postcard objects
+        uprn_lst(list:str): An equivalent list of four (or less) UPRNs
 
     Returns:
         (list:str) A list of the file paths for the two created PDFs
@@ -143,23 +164,27 @@ def build_all_images(postcard_list, uprn_list):
     addr_img.load()
     cal_img.load()
 
-    for position, postcard in enumerate(postcard_list):
-        # Position is based on the index in the postcard_list
-        text_boxes = build_one_image(postcard, position)
+    for position, card in enumerate(postcard_lst):
+        # Position is based on the index in the postcard_lst
+        text_boxes = build_one_image(card, position)
         # Overlays each box on to the image
         for text_box in text_boxes:
             cal_img.paste(ImageOps.colorize(
                 # Fill and outline RGB values of text
                 text_box.text_image, (255, 255, 255), (255, 255, 255)),
-                ((text_box.x_coord + text_box.x_offset), (text_box.y_coord + text_box.y_offset)), text_box.text_image)
+                          ((text_box.x_coord + text_box.x_offset),
+                           (text_box.y_coord + text_box.y_offset)),
+                          text_box.text_image)
 
-        address = build_address(postcard, 400, 300, position)
+        address = build_address(card, 400, 300, position)
         addr_img.paste(ImageOps.colorize(
             address.text_image, (0, 0, 0), (0, 0, 0)),
-            ((address.x_coord + address.x_offset), (address.y_coord + address.y_offset)), address.text_image)
+                       ((address.x_coord + address.x_offset),
+                        (address.y_coord + address.y_offset)),
+                       address.text_image)
 
-    addr_file = './out/addr-{}.pdf'.format('-'.join(uprn_list))
-    cal_file = './out/cal-{}.pdf'.format('-'.join(uprn_list))
+    addr_file = './out/addr-{}.pdf'.format('-'.join(uprn_lst))
+    cal_file = './out/cal-{}.pdf'.format('-'.join(uprn_lst))
 
     addr_img.save(addr_file, 'PDF', resolution=100.0, quality=100)
     cal_img.save(cal_file, 'PDF', resolution=100.0, quality=100)
@@ -167,29 +192,31 @@ def build_all_images(postcard_list, uprn_list):
     return [addr_file, cal_file]
 
 
-def build_one_image(postcard, position):
-    """ Given a single postcard, creates the strings and calls buiild_text to create the four text boxes for each bin
+def build_one_image(card, position):
+    """ Given a single postcard, creates the strings and calls buiild_text to create the four
+    text boxes for each bin
 
     Args:
-        postcard(obj:Postcard): A Postcard object used to get the string data
-        position: The position [top-left, top-right, bottom-left, bottom-right] of this postcard in the image
+        card(obj:Postcard): A Postcard object used to get the string data
+        position: The position [top-left, top-right, bottom-left, bottom-right] of this postcard
+        in the image
 
     Returns:
         (list:obj:TextBox): A list of the four TextBox objects used in each calendar image
     """
     # Wraps the strings over separate lines
-    ref_string = textwrap.wrap(postcard.calendar.ref_string, width=9)
-    recy_string = textwrap.wrap(postcard.calendar.recy_string, width=9)
-    gw_string = textwrap.wrap(postcard.calendar.gw_string, width=9)
-    gls_string = textwrap.wrap(postcard.calendar.gls_string, width=12)
+    ref_str = textwrap.wrap(card.calendar.ref_str, width=9)
+    recy_str = textwrap.wrap(card.calendar.recy_str, width=9)
+    gw_str = textwrap.wrap(card.calendar.gw_str, width=9)
+    gls_str = textwrap.wrap(card.calendar.gls_str, width=12)
 
     # Creates the text boxes
-    ref_text = build_text(ref_string, 260, 350, 155, 580, position, 4)
-    recy_text = build_text(recy_string, 260, 350, 545, 580, position, 4)
-    gw_text = build_text(gw_string, 260, 350, 1325, 580, position, 4)
+    ref_text = build_text(ref_str, 260, 350, 155, 580, position, 4)
+    recy_text = build_text(recy_str, 260, 350, 545, 580, position, 4)
+    gw_text = build_text(gw_str, 260, 350, 1325, 580, position, 4)
     # Glass box is unused by most postcards - need to add a special flag for the properties that are
-    # gls_text = build_text(gls_string, 0, 0, 0, 0, position, 2)
-    gls_text = build_text(gls_string, 380, 230, 880, 620, position, 4)
+    # gls_text = build_text(gls_str, 0, 0, 0, 0, position, 2)
+    gls_text = build_text(gls_str, 380, 230, 880, 620, position, 4)
 
     # Returns the text boxes
     return [ref_text, recy_text, gw_text, gls_text]
@@ -200,12 +227,12 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
 
     Args:
         string(str): The string contained in the text box
-        width(int): The width of the text box (pixels)
-        height(int): The height of the text box (pixels)
-        x_coord(int): The x co-ordinate of the top-left corner of the text box on the single image (pixels)
-        y_coord(int): The y co-ordinate of the top-left corner of the text box on the single image (pixels)
+        width(int): The width of the text box
+        height(int): The height of the text box
+        x_coord(int): The x co-ord of the top-left corner of the text box on the single imag
+        y_coord(int): The y co-ord of the top-left corner of the text box on the single image
         position(int): The position of the single image in the overall image
-        rotation(int): The angular rotation to draw the text box at (degrees)
+        rotation(int): The angular rotation to draw the text box at
 
     Returns:
         (obj:TextBox): A TextBox object containing the collection days
@@ -224,23 +251,24 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
     # Writes each line to the text box
     for line in string:
         # Calculates the width and height of each line
-        w, h = text_draw.textsize(line, font=cal_font)
+        wid, hei = text_draw.textsize(line, font=cal_font)
         # Writes the text to the box using the width and height so it's centre aligned
-        text_draw.text(((width - w) / 2, curr_h), line, font=cal_font, fill=255)
+        text_draw.text(((width - wid) / 2, curr_h), line, font=cal_font, fill=255)
         # Move the height cursor down
-        curr_h += h + pad
+        curr_h += hei + pad
 
     # Rotates the box
-    return TextBox(text_box.rotate(rotation, resample=Image.BICUBIC, expand=True), x_coord, y_coord, position)
+    return TextBox(text_box.rotate(rotation, resample=Image.BICUBIC, expand=True),
+                   x_coord, y_coord, position)
 
 
-def build_address(postcard, x_coord, y_coord, position):
+def build_address(card, x_coord, y_coord, position):
     """ Creates a text box to contain the address of a property
 
     Args:
-        postcard(obj:Postcard): A Postcard object used to get the address data
-        x_coord(int): The x co-ordinate of the top-left corner of the text box on the single image (pixels)
-        y_coord(int): The y co-ordinate of the top-left corner of the text box on the single image (pixels)
+        card(obj:Postcard): A Postcard object used to get the address data
+        x_coord(int): The x co-ord of the top-left corner of the text box on the single image
+        y_coord(int): The y co-ordinate of the top-left corner of the text box on the single image
         position(int): The position of the single image in the overall image
 
     Returns:
@@ -249,7 +277,7 @@ def build_address(postcard, x_coord, y_coord, position):
     addr_font = ImageFont.truetype('arial.ttf', 60)
 
     # Changes HTML line break to Python line break
-    addr_string = (postcard.address).replace('<br>', '\n')
+    addr_string = (card.address).replace('<br>', '\n')
     text_box = Image.new('L', (1900, 850))
     text_draw = ImageDraw.Draw(text_box)
     text_draw.multiline_text((0, 0), addr_string, font=addr_font, fill=255, spacing=20)
@@ -295,25 +323,26 @@ def append_pdfs(paths, uprns):
 
 if __name__ == '__main__':
     pyodbc.pooling = False
-    conn_data = DatabaseConn()
-    conn = pyodbc.connect(
-        driver=conn_data.driver,
-        server=conn_data.server,
-        database=conn_data.database,
-        uid=conn_data.uid,
-        pwd=conn_data.pwd
+    CONN_DATA = DatabaseConn()
+    CONN = pyodbc.connect(
+        driver=CONN_DATA.driver,
+        server=CONN_DATA.server,
+        database=CONN_DATA.database,
+        uid=CONN_DATA.uid,
+        pwd=CONN_DATA.pwd
     )
 
     # Lists of UPRNs are split into four, one for each corner of the 4x4 A3 sheet
-    uprn_lists = [['010001279831', '100050380169', '100050359718', '010001285090'], ['100050370512', '100050366002', '010001286067']]
-    for uprn_list in uprn_lists:
+    UPRN_LISTS = [['010001279831', '100050380169', '100050359718', '010001285090'],
+                  ['100050370512', '100050366002', '010001286067']]
+    for uprn_list in UPRN_LISTS:
         postcard_list = []
         for uprn in uprn_list:
             # Creates a Postcard object for each UPRN
-            postcard = build_postcard(conn, uprn)
+            postcard = build_postcard(CONN, uprn)
             postcard_list.append(postcard)
-        paths = build_all_images(postcard_list, uprn_list)
-        status = append_pdfs(paths, uprn_list)
+        out_paths = build_all_images(postcard_list, uprn_list)
+        status = append_pdfs(out_paths, uprn_list)
         print(status)
 
-    conn.close()
+    CONN.close()
