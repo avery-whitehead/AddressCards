@@ -7,7 +7,7 @@ In the AddressCards directory:
 `py -3 .\generate_image.py`
 
 Wow!  
-![output](https://i.imgur.com/LTEMp8U.png)
+![output](https://i.imgur.com/sa2r2i4.png)
 
 ### Changing positions of text boxes
 Because I'm going to have to change them and I'll probably forget.  
