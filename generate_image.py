@@ -1,4 +1,4 @@
-""" generate_image.py
+r""" generate_image.py
 
 Generates some postcards using some LLPG data.
 Looks up some address and collection details and uses Pillow to write this on to a template
@@ -67,24 +67,24 @@ class Calendar:
     """
     def __init__(self, ref_day, recy_day, gw_day, gls_day):
         dates = {
-            'Monday': 7,
-            'Tuesday': 8,
-            'Wednesday': 9,
-            'Thursday': 10,
-            'Friday': 11
+            'Monday': 4,
+            'Tuesday': 5,
+            'Wednesday': 6,
+            'Thursday': 7,
+            'Friday': 8
         }
         # Represents the text that will be shown for each collection
-        self.ref_str = '{} {}, {} May'.format(
-            ref_day, str(dates[ref_day]), str(dates[ref_day] + 14))
-        self.recy_str = '{} {}, {} May'.format(
-            recy_day, str(dates[recy_day]), str(dates[recy_day] + 14))
+        self.ref_str = '{}   from   {} June 2018'.format(
+            ref_day, str(dates[ref_day]))
+        self.recy_str = '{}   from   {} June 2018'.format(
+            ref_day, str(dates[recy_day]))
         if gw_day == '-':
             self.gw_str = 'Not collected'
         else:
-            self.gw_str = '{} {}, {} May'.format(
-                gw_day, str(dates[gw_day]), str(dates[gw_day] + 14))
-        self.gls_str = '{} {}, {} May'.format(
-            gls_day, str(dates[gls_day]), str(dates[gls_day] + 14))
+            self.gw_str = '{}   from   {} June 2018'.format(
+                ref_day, str(dates[gw_day]))
+        self.gls_str = '{}   from   {} June 2018'.format(
+            ref_day, str(dates[gls_day]))
 
 
 class TextBox:
@@ -103,20 +103,20 @@ class TextBox:
         self.y_coord = y_coord
         # Top left
         if position == 0:
-            self.x_offset = 66
-            self.y_offset = 44
+            self.x_offset = 0
+            self.y_offset = 0
         # Top right
         if position == 1:
-            self.x_offset = 1773
-            self.y_offset = 44
+            self.x_offset = 2480
+            self.y_offset = 0
         # Bottom left
         if position == 2:
-            self.x_offset = 66
-            self.y_offset = 1263
+            self.x_offset = 0
+            self.y_offset = 1754
         # Bottom right
         if position == 3:
-            self.x_offset = 1773
-            self.y_offset = 1263
+            self.x_offset = 2480
+            self.y_offset = 1754
 
 
 def build_postcard(connector, card_uprn):
@@ -160,7 +160,7 @@ def build_all_images(postcard_lst, uprn_lst):
         (list:str) A list of the file paths for the two created PDFs
     """
     addr_img = Image.open('./in/postcard-front-4x4.png').convert('RGB')
-    cal_img = Image.open('./in/postcard-back-4x4.png').convert('RGB')
+    cal_img = Image.open('./in/postcard-back-same-dates-4x4.png').convert('RGB')
     addr_img.load()
     cal_img.load()
 
@@ -205,18 +205,18 @@ def build_one_image(card, position):
         (list:obj:TextBox): A list of the four TextBox objects used in each calendar image
     """
     # Wraps the strings over separate lines
-    ref_str = textwrap.wrap(card.calendar.ref_str, width=9)
-    recy_str = textwrap.wrap(card.calendar.recy_str, width=9)
-    gw_str = textwrap.wrap(card.calendar.gw_str, width=9)
+    ref_str = textwrap.wrap(card.calendar.ref_str, width=6, replace_whitespace=False, break_long_words=False)
+    recy_str = textwrap.wrap(card.calendar.recy_str, width=6, replace_whitespace=True, break_long_words=False)
+    gw_str = textwrap.wrap(card.calendar.gw_str, width=6, replace_whitespace=True, break_long_words=False)
     gls_str = textwrap.wrap(card.calendar.gls_str, width=12)
 
     # Creates the text boxes
-    ref_text = build_text(ref_str, 260, 350, 155, 580, position, 4)
-    recy_text = build_text(recy_str, 260, 350, 545, 580, position, 4)
-    gw_text = build_text(gw_str, 260, 350, 1325, 580, position, 4)
+    ref_text = build_text(ref_str, 260, 450, 350, 660, position, 4)
+    recy_text = build_text(recy_str, 260, 450, 1045, 660, position, 4)
+    gw_text = build_text(gw_str, 260, 450, 1945, 660, position, 4)
     # Glass box is unused by most postcards - need to add a special flag for the properties that are
-    # gls_text = build_text(gls_str, 0, 0, 0, 0, position, 2)
-    gls_text = build_text(gls_str, 380, 230, 880, 620, position, 4)
+    gls_text = build_text(gls_str, 0, 0, 0, 0, position, 2)
+    # gls_text = build_text(gls_str, 380, 230, 880, 620, position, 4)
 
     # Returns the text boxes
     return [ref_text, recy_text, gw_text, gls_text]
@@ -237,7 +237,7 @@ def build_text(string, width, height, x_coord, y_coord, position, rotation):
     Returns:
         (obj:TextBox): A TextBox object containing the collection days
     """
-    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 42)
+    cal_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 61)
 
     # Creates a box to hold the text in
     text_box = Image.new('L', (width, height))
