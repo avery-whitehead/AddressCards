@@ -21,13 +21,46 @@ class Calendar:
     """ Represents a set of days on which particular bins are collected.
     """
     def __init__(self, connection, uprn):
-        cursor = connection.cursor()
+        self.dates = {
+            'Monday': 4,
+            'Tuesday': 5,
+            'Wednesday': 6,
+            'Thursday': 7,
+            'Friday': 8
+        }
+        self.connection = connection
+        self.uprn = uprn
+        self.get_calendar_data()
+        self.build_calendar_strings()
+
+    def get_calendar_data(self):
         with open('./cal_query.sql', 'r') as query_file:
             query = query_file.read()
             # Collects the calendar information from the database
-            cursor.execute(query, uprn)
+            cursor = self.connection.cursor()
+            cursor.execute(query, self.uprn)
             row = cursor.fetchone()
             self.black_bin_day = row.REFDay
+            self.recycling_bin_day = row.RECYDay
+            self.recycling_box_day = row.RECYDay
+            self.green_bin_day = row.GWDay
+    
+    def build_calendar_strings(self):
+        self.black_bin_str = '{}   from   {} June 2018'.format(
+            self.black_bin_day, str(self.dates[self.black_bin_day]))
+        self.recycling_bin_str = '{}   from   {} June 2018'.format(
+            self.recycling_bin_day, str(self.dates[self.recycling_bin_day]))
+        if self.recycling_box_day == self.recycling_bin_day:
+            self.recycling_box_str = 'Same day for box and bin'
+        else:
+            self.recycling_box_str = '{}   from   {} June 2018'.format(
+                self.recycling_box_day, str(self.dates[self.recycling_box_day]))
+        if self.green_bin_day == '-':
+            self.green_bin_str = 'Not collected'
+        else:
+            self.green_bin_str = '{}   from   {} June 2018'.format(
+                self.green_bin_day, str(self.dates[self.green_bin_day]))
+
 
 if __name__ == '__main__':
     pyodbc.pooling = False
@@ -45,7 +78,12 @@ if __name__ == '__main__':
         ['010001279831', '100050380169', '100050359718', '010001285090'],
         ['100050370512', '100050366002', '010001286067']]
     for uprn_list in UPRN_LISTS:
-        for uprn in uprn_list:
-            calendar = Calendar(CONN, uprn)
-            print(calendar.black_bin_day)
+        for uprn_val in uprn_list:
+            calendar = Calendar(CONN, uprn_val)
+            print(uprn_val + ': ')
+            print(calendar.black_bin_str)
+            print(calendar.recycling_bin_str)
+            print(calendar.recycling_box_str)
+            print(calendar.green_bin_str)
+            print()
     CONN.close()
