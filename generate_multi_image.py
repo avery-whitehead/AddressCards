@@ -6,9 +6,12 @@ from PyPDF2 import PdfFileReader, PdfFileWriter
 import pyodbc
 
 class ConnectionString:
-    """ Represents a pyodbc connection string. Reads the attributes from a config file
+    """ Represents a pyodbc connection string
     """
+
     def __init__(self):
+        """ Reads the attributes from a config file
+        """
         with open('.config') as config_file:
             config = json.load(config_file)
             self.driver = config['driver']
@@ -20,7 +23,10 @@ class ConnectionString:
 class Calendar:
     """ Represents a set of days on which particular bins are collected.
     """
+
     def __init__(self, connection, uprn):
+        """ Maps each day to a date and calls the methods to create the calendar
+        """
         self.dates = {
             'Monday': 4,
             'Tuesday': 5,
@@ -31,12 +37,13 @@ class Calendar:
         self.connection = connection
         self.uprn = uprn
         self.get_calendar_data()
-        self.build_calendar_strings()
+        self.format_calendar_strings()
 
     def get_calendar_data(self):
+        """ Queries the database using to get the calendar data
+        """
         with open('./cal_query.sql', 'r') as query_file:
             query = query_file.read()
-            # Collects the calendar information from the database
             cursor = self.connection.cursor()
             cursor.execute(query, self.uprn)
             row = cursor.fetchone()
@@ -44,8 +51,11 @@ class Calendar:
             self.recycling_bin_day = row.RECYDay
             self.recycling_box_day = row.RECYDay
             self.green_bin_day = row.GWDay
-    
-    def build_calendar_strings(self):
+            cursor.close()
+
+    def format_calendar_strings(self):
+        """ Formats the calendar data to match the design of the card
+        """
         self.black_bin_str = '{}   from   {} June 2018'.format(
             self.black_bin_day, str(self.dates[self.black_bin_day]))
         self.recycling_bin_str = '{}   from   {} June 2018'.format(
@@ -60,6 +70,33 @@ class Calendar:
         else:
             self.green_bin_str = '{}   from   {} June 2018'.format(
                 self.green_bin_day, str(self.dates[self.green_bin_day]))
+
+
+class Address:
+    """ Represents a Royal Mail standard address of a property
+    """
+    def __init__(self, connection, uprn):
+        """ Calls the methods to create an address
+        """
+        self.connection = connection
+        self.uprn = uprn
+        self.get_address_data()
+        self.format_address_string()
+
+    def get_address_data(self):
+        """ Queries the database to get the address data
+        """
+        with open('./cal_query.sql', 'r') as query_file:
+            query = query_file.read()
+            cursor = self.connection.cursor()
+            cursor.execute(query, self.uprn)
+            row = cursor.fetchone()
+            self.address_block = row.addressBlock
+
+    def format_address_string(self):
+        """ Formats the address data to match the design of the card
+        """
+        self.address_block = self.address_block.replace('<br>', '\n')
 
 
 if __name__ == '__main__':
@@ -80,7 +117,9 @@ if __name__ == '__main__':
     for uprn_list in UPRN_LISTS:
         for uprn_val in uprn_list:
             calendar = Calendar(CONN, uprn_val)
-            print(uprn_val + ': ')
+            address = Address(CONN, uprn_val)
+            print(calendar.uprn + ': ')
+            print(address.address_block)
             print(calendar.black_bin_str)
             print(calendar.recycling_bin_str)
             print(calendar.recycling_box_str)
