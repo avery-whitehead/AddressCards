@@ -118,7 +118,7 @@ class CalendarImage:
         """ Sets some values used to generate the correct image
         """
         self.calendar = calendar
-        self.calendar_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 61)
+        self.calendar_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 52)
         self.load_calendar_image()
         self.build_calendar_image()
 
@@ -135,18 +135,20 @@ class CalendarImage:
         """ Builds the correct image using the background and calendar data
         """
         black_bin_str = self.wrap_text(calendar.black_bin_str)
+        # Width, height and rotation of the text box
         black_bin_text = self.create_text_box(black_bin_str, 300, 450, 4)
-        self.paste_text_box(black_bin_text, 350, 660)
+        # x and y coordinate of the text box
+        self.paste_text_box(black_bin_text, 325, 655)
         recycling_bin_str = self.wrap_text(calendar.recycling_bin_str)
         recycling_bin_text = self.create_text_box(recycling_bin_str, 300, 450, 4)
-        self.paste_text_box(recycling_bin_text, 1045, 660)
+        self.paste_text_box(recycling_bin_text, 1015, 655)
         if self.image_type != 'SAME_COLLECTION':
             recycling_box_str = self.wrap_text(calendar.recycling_box_str)
             recycling_box_text = self.create_text_box(recycling_box_str, 400, 250, 4)
-            self.paste_text_box(recycling_box_text, 880, 620)
+            self.paste_text_box(recycling_box_text, 880, 655)
         green_bin_str = self.wrap_text(calendar.green_bin_str)
-        green_bin_text = self.create_text_box(green_bin_str, 300, 45, 4)
-        self.paste_text_box(green_bin_text, 1945, 660)
+        green_bin_text = self.create_text_box(green_bin_str, 300, 450, 4)
+        self.paste_text_box(green_bin_text, 1920, 655)
         self.calendar_image.save(
             './out/{}.pdf'.format(self.calendar.uprn),
             resolution=100.0,
@@ -158,7 +160,7 @@ class CalendarImage:
         """
         return textwrap.wrap(
             string,
-            width=3,
+            width=6,
             replace_whitespace=False,
             break_long_words=False)
 
