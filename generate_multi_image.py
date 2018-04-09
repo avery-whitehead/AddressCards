@@ -120,7 +120,7 @@ class CalendarImage:
         self.calendar = calendar
         self.calendar_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 52)
         self.load_calendar_image()
-        self.build_calendar_image()
+        self.image = self.build_calendar_image()
 
     def load_calendar_image(self):
         """ Loads the correct image based on image type
@@ -138,22 +138,48 @@ class CalendarImage:
         # Width, height and rotation of the text box
         black_bin_text = create_text_box(black_bin_str, 300, 450, 4, self.calendar_font)
         # x and y coordinate of the text box
-        paste_image(self.calendar_image, black_bin_text, 325, 655)
+        paste_text_box(self.calendar_image, black_bin_text, 325, 655)
         recycling_bin_str = wrap_text(calendar.recycling_bin_str)
         recycling_bin_text = create_text_box(recycling_bin_str, 300, 450, 4, self.calendar_font)
-        paste_image(self.calendar_image, recycling_bin_text, 1015, 655)
+        paste_text_box(self.calendar_image, recycling_bin_text, 1015, 655)
         if self.image_type != 'SAME_COLLECTION':
             recycling_box_str = wrap_text(calendar.recycling_box_str)
             recycling_box_text = create_text_box(recycling_box_str, 400, 250, 4, self.calendar_font)
-            paste_image(self.calendar_image, recycling_box_text, 880, 655)
+            paste_text_box(self.calendar_image, recycling_box_text, 880, 655)
         green_bin_str = wrap_text(calendar.green_bin_str)
         green_bin_text = create_text_box(green_bin_str, 300, 450, 4, self.calendar_font)
-        paste_image(self.calendar_image, green_bin_text, 1920, 655)
-        self.calendar_image.save(
-            './out/{}.pdf'.format(self.calendar.uprn),
-            resolution=100.0,
-            quality=100
-        )
+        paste_text_box(self.calendar_image, green_bin_text, 1920, 655)
+        return self.calendar_image
+
+
+class CalendarSide:
+    """ Represents a collection of four CalendarImage objects pasted on a blank image
+    """
+
+    def __init__(self, calendar_image_list):
+        """ Defines the positions for the calendar images
+        """
+        self.calendar_image_list = calendar_image_list
+        # X and y offsets for top-left, top-right, bottom-left, bottom-right
+        self.positions = [(0, 0), (2480, 0), (0, 1754), (2480, 1754)]
+        self.calendar_side_image = Image.open('./in/blank_a3.jpg').convert('RGB')
+        self.calendar_side_image.load()
+        self.build_calendar_side()
+        filename = []
+        for calendar_image in self.calendar_image_list:
+            filename.append(calendar_image.calendar.uprn)
+        save_image('-'.join(filename), self.calendar_side_image)
+
+    def build_calendar_side(self):
+        """ Pastes each CalendarImage at the correct position on the blank page to create a 4x4 grid
+        """
+        for position, calendar_image in enumerate(self.calendar_image_list):
+            paste_image(
+                self.calendar_side_image,
+                calendar_image.image,
+                self.positions[position][0],
+                self.positions[position][1])
+
 
 def wrap_text(string):
     """ Wraps a given string on to multiple lines to fit the image
@@ -182,16 +208,29 @@ def create_text_box(string, width, height, rotation, font):
         current_height += line_height + padding
     return text_box.rotate(rotation, resample=Image.BICUBIC, expand=True)
 
-def paste_image(base_image, image_to_paste, x_coord, y_coord):
-    """ Pastes an image on to another image given a set of coordinates
+def paste_text_box(base_image, text_box, x_coord, y_coord):
+    """ Pastes a text box on to an image, given a set of coordinates
     """
     base_image.paste(
         ImageOps.colorize(
-            image_to_paste,
+            text_box,
             (255, 255, 255),
             (255, 255, 255)),
         (x_coord, y_coord),
-        image_to_paste)
+        text_box)
+
+def paste_image(base_image, image_to_paste, x_coord, y_coord):
+    """ Pasts an image on to another image, given a set of coordinates
+    """
+    base_image.paste(image_to_paste, (x_coord, y_coord))
+
+def save_image(filename, image):
+    """ Saves an image to file as a PDF
+    """
+    image.save(
+        './out/{}.pdf'.format(filename),
+        resolution=100.0,
+        quality=100)
 
 
 if __name__ == '__main__':
@@ -209,8 +248,13 @@ if __name__ == '__main__':
         ['010001279831', '100050380169', '100050359718', '010001285090'],
         ['100050370512', '100050366002', '010001286067']]
     for uprn_list in UPRN_LISTS:
+        calendar_images = []
         for uprn in uprn_list:
             calendar = Calendar(CONN, uprn)
             address = Address(CONN, uprn)
+            # calendar_image.image for PIL.Image type, calendar_image.calendar for Calender type
             calendar_image = CalendarImage(calendar)
+            calendar_images.append(calendar_image)
+        calendar_side = CalendarSide(calendar_images)
+
     CONN.close()
