@@ -180,7 +180,7 @@ class CalendarSide:
         filename = ['cal']
         for calendar_image in self.calendar_image_list:
             filename.append(calendar_image.calendar.uprn)
-        save_image('-'.join(filename), self.calendar_side_image)
+        self.new_file = save_image('-'.join(filename), self.calendar_side_image)
 
     def build_calendar_side(self):
         """ Pastes each CalendarImage at the correct position on the blank page to create a 4x4 grid
@@ -267,7 +267,7 @@ class AddressSide:
         filename = ['addr']
         for address_image in self.address_image_list:
             filename.append(address_image.address.uprn)
-        save_image('-'.join(filename), self.address_side_image)
+        self.new_file = save_image('-'.join(filename), self.address_side_image)
 
     def build_address_side(self):
         """ Pastes each AddressImage at the correct position on the blank page to create a 4x4 grid
@@ -330,11 +330,32 @@ def paste_image(base_image, image_to_paste, x_coord, y_coord):
 def save_image(filename, image):
     """ Saves an image to file as a PDF
     """
-    image.save(
-        './out/{}.pdf'.format(filename),
-        resolution=100.0,
-        quality=100)
+    out_path = './out/{}.pdf'.format(filename)
+    image.save(out_path, resolution=100.0, quality=100)
+    return out_path
 
+def append_pdfs(paths, uprns):
+    """ Appends the two created PDFs into one file
+    """
+    # Opens and combines the two files
+    combined = PdfFileWriter()
+    first_file = open(paths[0], 'rb')
+    second_file = open(paths[1], 'rb')
+    first = PdfFileReader(first_file)
+    second = PdfFileReader(second_file)
+    combined.addPage(first.getPage(0))
+    combined.addPage(second.getPage(0))
+    # Writes the new file
+    out_file = './out/{}.pdf'.format('-'.join(uprns))
+    stream = open(out_file, 'wb')
+    combined.write(stream)
+    # Cleans up the stream and the old files
+    stream.close()
+    first_file.close()
+    second_file.close()
+    os.remove(paths[0])
+    os.remove(paths[1])
+    return 'Created PDF {}'.format(out_file)
 
 if __name__ == '__main__':
     pyodbc.pooling = False
@@ -362,4 +383,5 @@ if __name__ == '__main__':
             address_images.append(address_image)
         calendar_side = CalendarSide(calendar_images)
         address_side = AddressSide(address_images)
+        print(append_pdfs((calendar_side.new_file, address_side.new_file), uprn_list))
     CONN.close()
