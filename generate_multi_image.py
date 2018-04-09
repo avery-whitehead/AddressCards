@@ -134,64 +134,64 @@ class CalendarImage:
     def build_calendar_image(self):
         """ Builds the correct image using the background and calendar data
         """
-        black_bin_str = self.wrap_text(calendar.black_bin_str)
+        black_bin_str = wrap_text(calendar.black_bin_str)
         # Width, height and rotation of the text box
-        black_bin_text = self.create_text_box(black_bin_str, 300, 450, 4)
+        black_bin_text = create_text_box(black_bin_str, 300, 450, 4, self.calendar_font)
         # x and y coordinate of the text box
-        self.paste_text_box(black_bin_text, 325, 655)
-        recycling_bin_str = self.wrap_text(calendar.recycling_bin_str)
-        recycling_bin_text = self.create_text_box(recycling_bin_str, 300, 450, 4)
-        self.paste_text_box(recycling_bin_text, 1015, 655)
+        paste_image(self.calendar_image, black_bin_text, 325, 655)
+        recycling_bin_str = wrap_text(calendar.recycling_bin_str)
+        recycling_bin_text = create_text_box(recycling_bin_str, 300, 450, 4, self.calendar_font)
+        paste_image(self.calendar_image, recycling_bin_text, 1015, 655)
         if self.image_type != 'SAME_COLLECTION':
-            recycling_box_str = self.wrap_text(calendar.recycling_box_str)
-            recycling_box_text = self.create_text_box(recycling_box_str, 400, 250, 4)
-            self.paste_text_box(recycling_box_text, 880, 655)
-        green_bin_str = self.wrap_text(calendar.green_bin_str)
-        green_bin_text = self.create_text_box(green_bin_str, 300, 450, 4)
-        self.paste_text_box(green_bin_text, 1920, 655)
+            recycling_box_str = wrap_text(calendar.recycling_box_str)
+            recycling_box_text = create_text_box(recycling_box_str, 400, 250, 4, self.calendar_font)
+            paste_image(self.calendar_image, recycling_box_text, 880, 655)
+        green_bin_str = wrap_text(calendar.green_bin_str)
+        green_bin_text = create_text_box(green_bin_str, 300, 450, 4, self.calendar_font)
+        paste_image(self.calendar_image, green_bin_text, 1920, 655)
         self.calendar_image.save(
             './out/{}.pdf'.format(self.calendar.uprn),
             resolution=100.0,
             quality=100
         )
 
-    def wrap_text(self, string):
-        """ Wraps the given calendar date on to multiple lines to fit the image
-        """
-        return textwrap.wrap(
-            string,
-            width=6,
-            replace_whitespace=False,
-            break_long_words=False)
+def wrap_text(string):
+    """ Wraps a given string on to multiple lines to fit the image
+    """
+    return textwrap.wrap(
+        string,
+        width=6,
+        replace_whitespace=False,
+        break_long_words=False)
 
-    def create_text_box(self, string, width, height, rotation):
-        """ Creates a text box to hold the calendar data
-        """
-        text_box = Image.new('L', (width, height))
-        text_box_draw = ImageDraw.Draw(text_box)
-        padding = 10
-        current_height = 50
-        for line in string:
-            line_width, line_height = text_box_draw.textsize(line, font=self.calendar_font)
-            # Writes the text to the box using the width and height so it's centre aligned
-            text_box_draw.text(
-                ((width - line_width) / 2, current_height),
-                line,
-                font=self.calendar_font,
-                fill=255)
-            current_height += line_height + padding
-        return text_box.rotate(rotation, resample=Image.BICUBIC, expand=True)
+def create_text_box(string, width, height, rotation, font):
+    """ Creates a text box to hold some string data
+    """
+    text_box = Image.new('L', (width, height))
+    text_box_draw = ImageDraw.Draw(text_box)
+    padding = 10
+    current_height = 50
+    for line in string:
+        line_width, line_height = text_box_draw.textsize(line, font=font)
+        # Writes the text to the box using the width and height so it's centre aligned
+        text_box_draw.text(
+            ((width - line_width) / 2, current_height),
+            line,
+            font=font,
+            fill=255)
+        current_height += line_height + padding
+    return text_box.rotate(rotation, resample=Image.BICUBIC, expand=True)
 
-    def paste_text_box(self, text_box, x_coord, y_coord):
-        """ Pastes the text box on to the image given a set of coordinates
-        """
-        self.calendar_image.paste(
-            ImageOps.colorize(
-                text_box,
-                (255, 255, 255),
-                (255, 255, 255)),
-            (x_coord, y_coord),
-            text_box)
+def paste_image(base_image, image_to_paste, x_coord, y_coord):
+    """ Pastes an image on to another image given a set of coordinates
+    """
+    base_image.paste(
+        ImageOps.colorize(
+            image_to_paste,
+            (255, 255, 255),
+            (255, 255, 255)),
+        (x_coord, y_coord),
+        image_to_paste)
 
 
 if __name__ == '__main__':
