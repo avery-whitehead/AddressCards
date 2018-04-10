@@ -106,35 +106,35 @@ class CalendarImage:
     def build_calendar_image(self):
         """ Builds the correct image using the background and calendar data
         """
-        black_bin_str = wrap_text(calendar.black_bin_str, 6)
-        # Width, height and rotation of the text box
-        black_bin_text = create_text_box(
-            black_bin_str,
-            300, 450, 4,
-            self.calendar_font,
-            255,
-            False)
-        # x and y coordinate of the text box
-        paste_text_box(
-            self.calendar_image,
-            black_bin_text,
-            325, 655,
-            (255, 255, 255),
-            (255, 255, 255))
-        recycling_bin_str = wrap_text(calendar.recycling_bin_str, 6)
-        recycling_bin_text = create_text_box(
-            recycling_bin_str,
-            300, 450, 4,
-            self.calendar_font,
-            255,
-            False)
-        paste_text_box(
-            self.calendar_image,
-            recycling_bin_text,
-            1015, 655,
-            (255, 255, 255),
-            (255, 255, 255))
-        if self.image_type != 'SAME_COLLECTION':
+        if self.image_type == 'SAME_COLLECTION':
+            black_bin_str = wrap_text(calendar.black_bin_str, 6)
+            # Width, height and rotation of the text box
+            black_bin_text = create_text_box(
+                black_bin_str,
+                300, 450, 4,
+                self.calendar_font,
+                255,
+                False)
+            # X and Y coordinate of the text box
+            paste_text_box(
+                self.calendar_image,
+                black_bin_text,
+                325, 655,
+                (255, 255, 255),
+                (255, 255, 255))
+            recycling_bin_str = wrap_text(calendar.recycling_bin_str, 6)
+            recycling_bin_text = create_text_box(
+                recycling_bin_str,
+                300, 450, 4,
+                self.calendar_font,
+                255,
+                False)
+            paste_text_box(
+                self.calendar_image,
+                recycling_bin_text,
+                1015, 655,
+                (255, 255, 255),
+                (255, 255, 255))
             recycling_box_str = wrap_text(calendar.recycling_box_str, 6)
             recycling_box_text = create_text_box(
                 recycling_box_str,
@@ -148,19 +148,21 @@ class CalendarImage:
                 880, 655,
                 (255, 255, 255),
                 (255, 255, 255))
-        green_bin_str = wrap_text(calendar.green_bin_str, 6)
-        green_bin_text = create_text_box(
-            green_bin_str,
-            300, 450, 4,
-            self.calendar_font,
-            255,
-            False)
-        paste_text_box(
-            self.calendar_image,
-            green_bin_text,
-            1920, 655,
-            (255, 255, 255),
-            (255, 255, 255))
+            green_bin_str = wrap_text(calendar.green_bin_str, 6)
+            green_bin_text = create_text_box(
+                green_bin_str,
+                300, 450, 4,
+                self.calendar_font,
+                255,
+                False)
+            paste_text_box(
+                self.calendar_image,
+                green_bin_text,
+                1920, 655,
+                (255, 255, 255),
+                (255, 255, 255))
+        if self.image_type == 'DIFFERENT_COLLECTION':
+            print('TODO: handle different image collection')
         return self.calendar_image
 
 
@@ -383,5 +385,5 @@ if __name__ == '__main__':
             address_images.append(address_image)
         calendar_side = CalendarSide(calendar_images)
         address_side = AddressSide(address_images)
-        print(append_pdfs((calendar_side.new_file, address_side.new_file), uprn_list))
+        print(append_pdfs((address_side.new_file, calendar_side.new_file), uprn_list))
     CONN.close()
