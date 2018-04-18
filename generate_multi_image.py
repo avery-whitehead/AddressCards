@@ -90,7 +90,7 @@ class CalendarImage:
         """ Sets some values used to generate the correct image
         """
         self.calendar = calendar
-        self.calendar_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 52)
+        self.calendar_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 59)
         self.load_calendar_image()
         self.image = self.build_calendar_image()
 
@@ -119,7 +119,8 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 black_bin_text,
-                325, 655,
+                415, 750,
+                #325, 655,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_bin_str = wrap_text(calendar.recycling_bin_str, 6)
@@ -132,7 +133,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_bin_text,
-                1015, 655,
+                1105, 750,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_box_str = wrap_text(calendar.recycling_box_str, 6)
@@ -145,7 +146,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_box_text,
-                880, 655,
+                970, 750,
                 (255, 255, 255),
                 (255, 255, 255))
             green_bin_str = wrap_text(calendar.green_bin_str, 6)
@@ -158,7 +159,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 green_bin_text,
-                1920, 655,
+                2010, 750,
                 (255, 255, 255),
                 (255, 255, 255))
         if self.image_type == 'DIFFERENT_COLLECTION':
@@ -175,7 +176,7 @@ class CalendarSide:
         """
         self.calendar_image_list = calendar_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2480, 0), (0, 1754), (2480, 1754)]
+        self.positions = [(0, 0), (2655, 0), (0, 1929), (2655, 1929)]
         self.calendar_side_image = Image.open('./in/blank_a3.jpg').convert('RGB')
         self.calendar_side_image.load()
         self.build_calendar_side()
@@ -262,7 +263,7 @@ class AddressSide:
         """
         self.address_image_list = address_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2480, 0), (0, 1754), (2480, 1754)]
+        self.positions = [(0, 0), (2655, 0), (0, 1929), (2655, 1929)]
         self.address_side_image = Image.open('./in/blank_a3.jpg').convert('RGB')
         self.address_side_image.load()
         self.build_address_side()
@@ -385,5 +386,5 @@ if __name__ == '__main__':
             address_images.append(address_image)
         calendar_side = CalendarSide(calendar_images)
         address_side = AddressSide(address_images)
-        print(append_pdfs((address_side.new_file, calendar_side.new_file), uprn_list))
+        #print(append_pdfs((address_side.new_file, calendar_side.new_file), uprn_list))
     CONN.close()
