@@ -2,9 +2,8 @@ select
        p.uprn
        ,replace(replace(l.ADDRESS_BLOCK_ORG,'North Yorkshire'+char(13)+char(10),''),char(13)+char(10),'<br>') as addressBlock
        ,case
-              when ref.ScheduleDayID < 8 then '1'
-              when ref.ScheduleDayID > 7 then '2'
-              else '&nbsp;'
+              when ref.ScheduleDayID < 8 then 0
+              when ref.ScheduleDayID > 7 then 1
        end as REFWeek
        ,case
               when ref.ScheduleDayID in (1,8) then 'Monday'
@@ -15,9 +14,8 @@ select
               else '-'
        end as REFDay
        ,case
-              when recy.ScheduleDayID < 8 then '1'
-              when recy.ScheduleDayID > 7 then '2'
-              else '&nbsp;'
+              when recy.ScheduleDayID < 8 then 0
+              when recy.ScheduleDayID > 7 then 1
        end as RECYWeek
        ,case
               when recy.ScheduleDayID in (1,8) then 'Monday'
@@ -28,9 +26,8 @@ select
               else '-'
        end as RECYDay
        ,case
-              when gw.ScheduleDayID < 8 then '1'
-              when gw.ScheduleDayID > 7 then '2'
-              else '&nbsp;'
+              when gw.ScheduleDayID < 8 then 0
+              when gw.ScheduleDayID > 7 then 1
        end as GWWeek
        ,case
               when gw.ScheduleDayID in (1,8) then 'Monday'

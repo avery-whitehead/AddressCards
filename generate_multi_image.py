@@ -39,11 +39,11 @@ class Calendar:
         """ Maps each day to a date and calls the methods to create the calendar
         """
         self.dates = {
-            'Monday': 4,
-            'Tuesday': 5,
-            'Wednesday': 6,
-            'Thursday': 7,
-            'Friday': 8}
+            'Monday': 0,
+            'Tuesday': 1,
+            'Wednesday': 2,
+            'Thursday': 3,
+            'Friday': 4}
         self.connection = connection
         self.uprn = uprn
         self.get_calendar_data()
@@ -58,28 +58,36 @@ class Calendar:
             cursor.execute(query, self.uprn)
             row = cursor.fetchone()
             self.black_bin_day = row.REFDay
+            self.black_bin_week = row.REFWeek
             self.recycling_bin_day = row.RECYDay
+            self.recycling_bin_week = row.RECYWeek
             self.recycling_box_day = row.RECYDay
+            self.recycling_box_week = row.RECYWeek
             self.green_bin_day = row.GWDay
+            self.green_bin_week = row.GWWeek
             cursor.close()
 
     def format_calendar_strings(self):
         """ Formats the calendar data to match the design of the card
         """
         self.black_bin_str = '{}   from   {} June 2018'.format(
-            self.black_bin_day, str(self.dates[self.black_bin_day]))
+            self.black_bin_day,
+            str((self.black_bin_week * 7) + self.dates[self.black_bin_day] + 4))
         self.recycling_bin_str = '{}   from   {} June 2018'.format(
-            self.recycling_bin_day, str(self.dates[self.recycling_bin_day]))
+            self.recycling_bin_day,
+            str((self.recycling_bin_week * 7) + self.dates[self.recycling_bin_day] + 4))
         if self.recycling_box_day == self.recycling_bin_day:
             self.recycling_box_str = ''
         else:
             self.recycling_box_str = '{}   from   {} June 2018'.format(
-                self.recycling_box_day, str(self.dates[self.recycling_box_day]))
+                self.recycling_box_day,
+                str((self.recycling_box_week * 7) + self.dates[self.recycling_bin_day] + 4))
         if self.green_bin_day == '-':
             self.green_bin_str = 'Not collected'
         else:
             self.green_bin_str = '{}   from   {} June 2018'.format(
-                self.green_bin_day, str(self.dates[self.green_bin_day]))
+                self.green_bin_day,
+                str((self.green_bin_week * 7) + self.dates[self.green_bin_day] + 4))
 
 
 class CalendarImage:
