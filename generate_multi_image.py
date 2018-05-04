@@ -1,8 +1,8 @@
 r""" generate_multi_image.py
 
 Generates some postcards using some LLPG data.
-Looks up some address and collection details and uses Pillow to write this on to a template
-A refactoring of generate_image.py
+Looks up some address and collection details and uses Pillow to write this
+on to a template. A refactoring of generate_image.py
 
 Example:
     To run from the AddressCards directory:
@@ -36,7 +36,8 @@ class Calendar:
     """
 
     def __init__(self, connection, uprn):
-        """ Maps each day to a date and calls the methods to create the calendar
+        """ Maps each day to a date and calls the methods to create the
+        calendar
         """
         self.dates = {
             'Monday': 0,
@@ -98,7 +99,8 @@ class CalendarImage:
         """ Sets some values used to generate the correct image
         """
         self.calendar = calendar
-        self.calendar_font = ImageFont.truetype('futura bold condensed italic bt.ttf', 59)
+        self.calendar_font = ImageFont.truetype(
+            'futura bold condensed italic bt.ttf', 59)
         self.load_calendar_image()
         self.image = self.build_calendar_image()
 
@@ -108,14 +110,15 @@ class CalendarImage:
         # If the recycling box and bins are collected simultaneously
         if self.calendar.recycling_box_str == '':
             self.image_type = 'SAME_COLLECTION'
-            self.calendar_image = Image.open('./in/postcard-back-same-dates.jpg').convert('RGB')
+            self.calendar_image = Image.open(
+                './in/postcard-back-same-dates.jpg').convert('RGB')
             self.calendar_image.load()
 
     def build_calendar_image(self):
         """ Builds the correct image using the background and calendar data
         """
         if self.image_type == 'SAME_COLLECTION':
-            black_bin_str = wrap_text(calendar.black_bin_str, 6)
+            black_bin_str = wrap_text(calendar.black_bin_str, 7)
             # Width, height and rotation of the text box
             black_bin_text = create_text_box(
                 black_bin_str,
@@ -131,7 +134,7 @@ class CalendarImage:
                 #325, 655,
                 (255, 255, 255),
                 (255, 255, 255))
-            recycling_bin_str = wrap_text(calendar.recycling_bin_str, 6)
+            recycling_bin_str = wrap_text(calendar.recycling_bin_str, 7)
             recycling_bin_text = create_text_box(
                 recycling_bin_str,
                 300, 450, 4,
@@ -144,7 +147,7 @@ class CalendarImage:
                 1105, 750,
                 (255, 255, 255),
                 (255, 255, 255))
-            recycling_box_str = wrap_text(calendar.recycling_box_str, 6)
+            recycling_box_str = wrap_text(calendar.recycling_box_str, 7)
             recycling_box_text = create_text_box(
                 recycling_box_str,
                 400, 250, 4,
@@ -157,7 +160,7 @@ class CalendarImage:
                 970, 750,
                 (255, 255, 255),
                 (255, 255, 255))
-            green_bin_str = wrap_text(calendar.green_bin_str, 6)
+            green_bin_str = wrap_text(calendar.green_bin_str, 7)
             green_bin_text = create_text_box(
                 green_bin_str,
                 300, 450, 4,
@@ -176,7 +179,8 @@ class CalendarImage:
 
 
 class CalendarSide:
-    """ Represents a collection of four CalendarImage objects pasted on a blank image
+    """ Represents a collection of four CalendarImage objects pasted on a
+    blank image
     """
 
     def __init__(self, calendar_image_list):
@@ -185,16 +189,19 @@ class CalendarSide:
         self.calendar_image_list = calendar_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
         self.positions = [(0, 0), (2655, 0), (0, 1929), (2655, 1929)]
-        self.calendar_side_image = Image.open('./in/blank_a3.jpg').convert('RGB')
+        self.calendar_side_image = Image.open(
+            './in/blank_a3.jpg').convert('RGB')
         self.calendar_side_image.load()
         self.build_calendar_side()
         filename = ['cal']
         for calendar_image in self.calendar_image_list:
             filename.append(calendar_image.calendar.uprn)
-        self.new_file = save_image('-'.join(filename), self.calendar_side_image)
+        self.new_file = save_image(
+            '-'.join(filename), self.calendar_side_image)
 
     def build_calendar_side(self):
-        """ Pastes each CalendarImage at the correct position on the blank page to create a 4x4 grid
+        """ Pastes each CalendarImage at the correct position on the blank
+        page to create a 4x4 grid
         """
         for position, calendar_image in enumerate(self.calendar_image_list):
             paste_image(
@@ -241,7 +248,8 @@ class AddressImage:
         """
         self.address = address
         self.address_font = ImageFont.truetype('arial.ttf', 60)
-        self.address_image = Image.open('./in/postcard-front.jpg').convert('RGB')
+        self.address_image = Image.open(
+            './in/postcard-front.jpg').convert('RGB')
         self.address_image.load()
         self.build_address_image()
 
@@ -257,13 +265,14 @@ class AddressImage:
         paste_text_box(
             self.address_image,
             text_box,
-            400, 300,
+            500, 600,
             (0, 0, 0),
             (0, 0, 0))
 
 
 class AddressSide:
-    """ Represents a collection of four AddressSide objects pasted on a blank image
+    """ Represents a collection of four AddressSide objects pasted on a blank
+    image
     """
 
     def __init__(self, address_image_list):
@@ -272,7 +281,8 @@ class AddressSide:
         self.address_image_list = address_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
         self.positions = [(0, 0), (2655, 0), (0, 1929), (2655, 1929)]
-        self.address_side_image = Image.open('./in/blank_a3.jpg').convert('RGB')
+        self.address_side_image = Image.open(
+            './in/blank_a3.jpg').convert('RGB')
         self.address_side_image.load()
         self.build_address_side()
         filename = ['addr']
@@ -281,7 +291,8 @@ class AddressSide:
         self.new_file = save_image('-'.join(filename), self.address_side_image)
 
     def build_address_side(self):
-        """ Pastes each AddressImage at the correct position on the blank page to create a 4x4 grid
+        """ Pastes each AddressImage at the correct position on the blank page
+        to create a 4x4 grid
         """
         for position, address_image in enumerate(self.address_image_list):
             paste_image(
@@ -311,7 +322,7 @@ def create_text_box(string, width, height, rotation, font, fill, multiline):
         current_height = 50
         for line in string:
             line_width, line_height = text_box_draw.textsize(line, font=font)
-            # Writes the text to the box using the width and height so it's centre aligned
+            # Writes the text to the box so it's centre aligned
             text_box_draw.text(
                 ((width - line_width) / 2, current_height),
                 line,
@@ -319,7 +330,8 @@ def create_text_box(string, width, height, rotation, font, fill, multiline):
                 fill=fill)
             current_height += line_height + padding
     else:
-        text_box_draw.multiline_text((0, 0), string, font=font, fill=fill, spacing=20)
+        text_box_draw.multiline_text(
+            (0, 0), string, font=font, fill=fill, spacing=20)
     return text_box.rotate(rotation, resample=Image.BICUBIC, expand=True)
 
 def paste_text_box(base_image, text_box, x_coord, y_coord, rgb_black, rgb_white):
@@ -377,7 +389,7 @@ if __name__ == '__main__':
         database=CONN_STRING.database,
         uid=CONN_STRING.uid,
         pwd=CONN_STRING.pwd)
-    # Lists of UPRNs are split into four (maximum), one for each corner of the postcard group
+    # Lists of UPRNs are split into max four, one for each corner the card
     UPRN_LISTS = [
         ['010001279831', '100050380169', '100050359718', '010001285090'],
         ['100050370512', '100050366002', '010001286067']]
@@ -387,7 +399,7 @@ if __name__ == '__main__':
         for uprn in uprn_list:
             calendar = Calendar(CONN, uprn)
             address = Address(CONN, uprn)
-            # calendar_image.image for PIL.Image type, calendar_image.calendar for Calender type
+            # calendar_image.image: PIL.Image type, calendar_image.calendar: Calender type
             calendar_image = CalendarImage(calendar)
             calendar_images.append(calendar_image)
             address_image = AddressImage(address)
