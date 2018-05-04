@@ -353,8 +353,8 @@ def paste_image(base_image, image_to_paste, x_coord, y_coord):
 def save_image(filename, image):
     """ Saves an image to file as a PDF
     """
-    out_path = './out/{}.pdf'.format(filename)
-    image.save(out_path, resolution=100.0, quality=100)
+    out_path = './out/{}.jpg'.format(filename)
+    image.save(out_path, resolution=100.0, quality=100, dpi=(300,300))
     return out_path
 
 def append_pdfs(paths, uprns):
