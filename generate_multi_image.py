@@ -188,9 +188,9 @@ class CalendarSide:
         """
         self.calendar_image_list = calendar_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2655, 0), (0, 1929), (2655, 1929)]
+        self.positions = [(0, 0), (2657, 0), (0, 1890), (2657, 1890)]
         self.calendar_side_image = Image.open(
-            './in/blank_a3.jpg').convert('RGB')
+            './in/blank_sra3.jpg').convert('RGB')
         self.calendar_side_image.load()
         self.build_calendar_side()
         filename = ['cal']
@@ -280,9 +280,9 @@ class AddressSide:
         """
         self.address_image_list = address_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2655, 0), (0, 1929), (2655, 1929)]
+        self.positions = [(0, 0), (2657, 0), (0, 1890), (2657, 1890)]
         self.address_side_image = Image.open(
-            './in/blank_a3.jpg').convert('RGB')
+            './in/blank_sra3.jpg').convert('RGB')
         self.address_side_image.load()
         self.build_address_side()
         filename = ['addr']
@@ -354,7 +354,8 @@ def save_image(filename, image):
     """ Saves an image to file as a PDF
     """
     out_path = './out/{}.jpg'.format(filename)
-    image.save(out_path, resolution=100.0, quality=100, dpi=(300,300))
+    image.save(
+        out_path, quality=95, dpi=(300,300), optimize=True)
     return out_path
 
 def append_pdfs(paths, uprns):
