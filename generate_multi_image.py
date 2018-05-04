@@ -130,7 +130,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 black_bin_text,
-                415, 750,
+                415, 730,
                 #325, 655,
                 (255, 255, 255),
                 (255, 255, 255))
@@ -144,7 +144,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_bin_text,
-                1105, 750,
+                1105, 730,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_box_str = wrap_text(calendar.recycling_box_str, 7)
@@ -157,7 +157,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_box_text,
-                970, 750,
+                970, 730,
                 (255, 255, 255),
                 (255, 255, 255))
             green_bin_str = wrap_text(calendar.green_bin_str, 7)
@@ -170,7 +170,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 green_bin_text,
-                2010, 750,
+                2010, 730,
                 (255, 255, 255),
                 (255, 255, 255))
         if self.image_type == 'DIFFERENT_COLLECTION':
@@ -247,7 +247,7 @@ class AddressImage:
         """ Sets some values used to generate the correct images
         """
         self.address = address
-        self.address_font = ImageFont.truetype('arial.ttf', 60)
+        self.address_font = ImageFont.truetype('arial.ttf', 45)
         self.address_image = Image.open(
             './in/postcard-front.jpg').convert('RGB')
         self.address_image.load()
@@ -265,7 +265,7 @@ class AddressImage:
         paste_text_box(
             self.address_image,
             text_box,
-            500, 600,
+            500, 710,
             (0, 0, 0),
             (0, 0, 0))
 
