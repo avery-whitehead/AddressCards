@@ -13,7 +13,6 @@ import json
 import textwrap
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-from PyPDF2 import PdfFileReader, PdfFileWriter
 import pyodbc
 
 class ConnectionString:
@@ -186,14 +185,14 @@ class CalendarSide:
         """
         self.calendar_image_list = calendar_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2575, 0), (0, 1843), (2575, 1843)]
+        self.positions = [(82, 47), (2657, 47), (82, 1890), (2657, 1890)]
         self.calendar_side_image = Image.open(
             './in/blank_sra3.jpg').convert('RGB')
         self.calendar_side_image.load()
         self.build_calendar_side()
         filename = ['cal']
         for calendar_image in self.calendar_image_list:
-            filename.append(calendar_image.calendar.uprn)
+            filename = [calendar_image.calendar.uprn] + filename
         self.new_file = save_image(
             '-'.join(filename), self.calendar_side_image)
 
@@ -278,14 +277,14 @@ class AddressSide:
         """
         self.address_image_list = address_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2575, 0), (0, 1843), (2575, 1843)]
+        self.positions = [(82, 47), (2657, 47), (82, 1890), (2657, 1890)]
         self.address_side_image = Image.open(
             './in/blank_sra3.jpg').convert('RGB')
         self.address_side_image.load()
         self.build_address_side()
         filename = ['addr']
         for address_image in self.address_image_list:
-            filename.append(address_image.address.uprn)
+            filename = [address_image.address.uprn] + filename
         self.new_file = save_image('-'.join(filename), self.address_side_image)
 
     def build_address_side(self):
@@ -363,35 +362,32 @@ def paste_image(base_image, image_to_paste, x_coord, y_coord):
     base_image.paste(image_to_paste, (x_coord, y_coord))
 
 def save_image(filename, image):
-    """ Saves an image to file as a PDF
+    """ Saves an image to file
     """
     out_path = './out/{}.jpg'.format(filename)
     image.save(
         out_path, quality=95, dpi=(300,300), optimize=True)
     return out_path
 
-def append_pdfs(paths, uprns):
-    """ Appends the two created PDFs into one file
+def convert_to_pdf():
+    """ Converts all the images in the output folder into a single PDF with
+    each image on one page
     """
-    # Opens and combines the two files
-    combined = PdfFileWriter()
-    first_file = open(paths[0], 'rb')
-    second_file = open(paths[1], 'rb')
-    first = PdfFileReader(first_file)
-    second = PdfFileReader(second_file)
-    combined.addPage(first.getPage(0))
-    combined.addPage(second.getPage(0))
-    # Writes the new file
-    out_file = './out/{}.pdf'.format('-'.join(uprns))
-    stream = open(out_file, 'wb')
-    combined.write(stream)
-    # Cleans up the stream and the old files
-    stream.close()
-    first_file.close()
-    second_file.close()
-    os.remove(paths[0])
-    os.remove(paths[1])
-    return 'Created PDF {}'.format(out_file)
+    image_paths = [os.path.join('./out', f) for f in next(os.walk('./out'))[2]]
+    loaded_images = []
+    count = 0
+    for image in image_paths:
+        if count == 0:
+            first_image = Image.open(image)
+        else:
+            loaded_images.append(Image.open(image))
+        count += 1
+    path = './output.pdf'
+    first_image.save(
+        path, 'PDF', resolution=100.0, save_all=True,
+        append_images=loaded_images)
+    return 'Saved {} images to {}'.format(count, path)
+
 
 if __name__ == '__main__':
     pyodbc.pooling = False
@@ -422,4 +418,5 @@ if __name__ == '__main__':
         address_side = AddressSide(address_images)
         print('{}: {}'.format(index, address_side.new_file))
         print('{}: {}'.format(index, calendar_side.new_file))
+    print(convert_to_pdf())
     CONN.close()
