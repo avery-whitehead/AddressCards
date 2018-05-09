@@ -299,6 +299,20 @@ class AddressSide:
                 self.positions[position][0],
                 self.positions[position][1])
 
+def get_uprns(connection):
+    """ Gets a list of 1000 UPRNs from the database and splits them into a
+    list of lists, each sublist containing 4 elements.
+    """
+    uprns = []
+    with open('./uprn_query.sql', 'r') as query_file:
+        query = query_file.read()
+        cursor = connection.cursor()
+        cursor.execute(query)
+        uprn_col = cursor.fetchall()
+        for row in uprn_col:
+            uprns.append(row[0])
+        return [uprns[i:i + 4] for i in range(0, len(uprns), 4)]
+
 
 def wrap_text(string, width):
     """ Wraps a given string on to multiple lines to fit the image
@@ -389,10 +403,11 @@ if __name__ == '__main__':
         uid=CONN_STRING.uid,
         pwd=CONN_STRING.pwd)
     # Lists of UPRNs are split into max four, one for each corner the card
-    UPRN_LISTS = [
-        ['010001279831', '100050380169', '100050359718', '010001285090'],
-        ['100050370512', '100050366002', '010001286067']]
-    for uprn_list in UPRN_LISTS:
+    UPRN_LISTS = get_uprns(CONN)
+    #UPRN_LISTS = [
+    #    ['010001279831', '100050380169', '100050359718', '010001285090'],
+    #    ['100050370512', '100050366002', '010001286067']]
+    for index, uprn_list in enumerate(UPRN_LISTS, 1):
         calendar_images = []
         address_images = []
         for uprn in uprn_list:
@@ -405,5 +420,6 @@ if __name__ == '__main__':
             address_images.append(address_image)
         calendar_side = CalendarSide(calendar_images)
         address_side = AddressSide(address_images)
-        #print(append_pdfs((address_side.new_file, calendar_side.new_file), uprn_list))
+        print('{}: {}'.format(index, address_side.new_file))
+        print('{}: {}'.format(index, calendar_side.new_file))
     CONN.close()
