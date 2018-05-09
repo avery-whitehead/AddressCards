@@ -11,7 +11,6 @@ select
               when ref.ScheduleDayID in (3,10) then 'Wednesday'
               when ref.ScheduleDayID in (4,11) then 'Thursday'
               when ref.ScheduleDayID in (5,12) then 'Friday'
-              else '-'
        end as REFDay
        ,case
               when recy.ScheduleDayID < 8 then 0
@@ -23,7 +22,6 @@ select
               when recy.ScheduleDayID in (3,10) then 'Wednesday'
               when recy.ScheduleDayID in (4,11) then 'Thursday'
               when recy.ScheduleDayID in (5,12) then 'Friday'
-              else '-'
        end as RECYDay
        ,case
               when gw.ScheduleDayID < 8 then 0
@@ -35,7 +33,6 @@ select
               when gw.ScheduleDayID in (3,10) then 'Wednesday'
               when gw.ScheduleDayID in (4,11) then 'Thursday'
               when gw.ScheduleDayID in (5,12) then 'Friday'
-              else '-'
        end as GWDay
 from properties p
        join LLPG_ADDRESS_CURRENT_SPATIAL l

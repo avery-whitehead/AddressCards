@@ -83,13 +83,12 @@ class Calendar:
             self.recycling_box_str = '{}   from   {} June 2018'.format(
                 self.recycling_box_day,
                 str((self.recycling_box_week * 7) + self.dates[self.recycling_bin_day] + 4))
-        if self.green_bin_day == '-':
+        if self.green_bin_day is None:
             self.green_bin_str = 'Not collected'
         else:
             self.green_bin_str = '{}   from   {} June 2018'.format(
                 self.green_bin_day,
                 str((self.green_bin_week * 7) + self.dates[self.green_bin_day] + 4))
-
 
 class CalendarImage:
     """ Represents a single image of some bins with some calendar data on top
@@ -130,8 +129,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 black_bin_text,
-                415, 730,
-                #325, 655,
+                375, 710,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_bin_str = wrap_text(calendar.recycling_bin_str, 7)
@@ -144,7 +142,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_bin_text,
-                1105, 730,
+                1065, 710,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_box_str = wrap_text(calendar.recycling_box_str, 7)
@@ -157,7 +155,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_box_text,
-                970, 730,
+                930, 710,
                 (255, 255, 255),
                 (255, 255, 255))
             green_bin_str = wrap_text(calendar.green_bin_str, 7)
@@ -170,7 +168,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 green_bin_text,
-                2010, 730,
+                1970, 710,
                 (255, 255, 255),
                 (255, 255, 255))
         if self.image_type == 'DIFFERENT_COLLECTION':
@@ -188,7 +186,7 @@ class CalendarSide:
         """
         self.calendar_image_list = calendar_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2657, 0), (0, 1890), (2657, 1890)]
+        self.positions = [(0, 0), (2575, 0), (0, 1843), (2575, 1843)]
         self.calendar_side_image = Image.open(
             './in/blank_sra3.jpg').convert('RGB')
         self.calendar_side_image.load()
@@ -280,7 +278,7 @@ class AddressSide:
         """
         self.address_image_list = address_image_list
         # X and y offsets for top-left, top-right, bottom-left, bottom-right
-        self.positions = [(0, 0), (2657, 0), (0, 1890), (2657, 1890)]
+        self.positions = [(0, 0), (2575, 0), (0, 1843), (2575, 1843)]
         self.address_side_image = Image.open(
             './in/blank_sra3.jpg').convert('RGB')
         self.address_side_image.load()
