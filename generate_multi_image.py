@@ -407,25 +407,21 @@ if __name__ == '__main__':
         database=CONN_STRING.database,
         uid=CONN_STRING.uid,
         pwd=CONN_STRING.pwd)
-    # Lists of UPRNs are split into max four, one for each corner the card
     UPRN_LISTS = get_uprns(CONN)
-    #UPRN_LISTS = [
-    #    ['010001279831', '100050380169', '100050359718', '010001285090'],
-    #    ['100050370512', '100050366002', '010001286067']]
-    #for index, uprn_list in enumerate(UPRN_LISTS, 1):
-    #    calendar_images = []
-    #    address_images = []
-    #    for uprn in uprn_list:
-    #        calendar = Calendar(CONN, uprn)
-    #        address = Address(CONN, uprn)
-    #        # calendar_image.image: PIL.Image type, calendar_image.calendar: Calender type
-    #        calendar_image = CalendarImage(calendar)
-    #        calendar_images.append(calendar_image)
-    #        address_image = AddressImage(address)
-    #        address_images.append(address_image)
-    #    calendar_side = CalendarSide(calendar_images)
-    #    address_side = AddressSide(address_images)
-    #    print('{}: {}'.format(index, address_side.new_file))
-    #    print('{}: {}'.format(index, calendar_side.new_file))
+    for index, uprn_list in enumerate(UPRN_LISTS, 1):
+        calendar_images = []
+        address_images = []
+        for uprn in uprn_list:
+            calendar = Calendar(CONN, uprn)
+            address = Address(CONN, uprn)
+            # calendar_image.image: PIL.Image type, calendar_image.calendar: Calender type
+            calendar_image = CalendarImage(calendar)
+            calendar_images.append(calendar_image)
+            address_image = AddressImage(address)
+            address_images.append(address_image)
+        calendar_side = CalendarSide(calendar_images)
+        address_side = AddressSide(address_images)
+        print('{}: {}'.format(index, address_side.new_file))
+        print('{}: {}'.format(index, calendar_side.new_file))
     convert_to_pdf()
     CONN.close()
