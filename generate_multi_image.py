@@ -12,6 +12,7 @@ Example:
 import json
 import textwrap
 import os
+import gc
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import pyodbc
 
@@ -29,6 +30,7 @@ class ConnectionString:
             self.database = config['database']
             self.uid = config['uid']
             self.pwd = config['pwd']
+
 
 class Calendar:
     """ Represents a set of days on which particular bins are collected.
@@ -88,6 +90,7 @@ class Calendar:
             self.green_bin_str = '{}   from   {} June 2018'.format(
                 self.green_bin_day,
                 str((self.green_bin_week * 7) + self.dates[self.green_bin_day] + 4))
+
 
 class CalendarImage:
     """ Represents a single image of some bins with some calendar data on top
@@ -298,6 +301,7 @@ class AddressSide:
                 self.positions[position][0],
                 self.positions[position][1])
 
+
 def get_uprns(connection):
     """ Gets a list of 1000 UPRNs from the database and splits them into a
     list of lists, each sublist containing 4 elements.
@@ -311,7 +315,6 @@ def get_uprns(connection):
         for row in uprn_col:
             uprns.append(row[0])
         return [uprns[i:i + 4] for i in range(0, len(uprns), 4)]
-
 
 def wrap_text(string, width):
     """ Wraps a given string on to multiple lines to fit the image
@@ -373,21 +376,27 @@ def convert_to_pdf():
     """ Converts all the images in the output folder into a single PDF with
     each image on one page
     """
-    image_paths = [os.path.join('./out', f) for f in next(os.walk('./out'))[2]]
-    loaded_images = []
-    count = 0
-    for image in image_paths:
-        if count == 0:
-            first_image = Image.open(image)
-        else:
-            loaded_images.append(Image.open(image))
-        count += 1
-    path = './output.pdf'
-    first_image.save(
-        path, 'PDF', resolution=100.0, save_all=True,
-        append_images=loaded_images)
-    return 'Saved {} images to {}'.format(count, path)
-
+    paths = [os.path.join('./out', f) for f in next(os.walk('./out'))[2]]
+    # Splits paths into groups to avoid MemoryErrors
+    paths = [paths[i:i + 150] for i in range(0, len(paths), 100)]
+    list_count = 0
+    img_count = 0
+    for sublist in paths:
+        loaded_images = []
+        for image in sublist:
+            if img_count % 150 == 0:
+                first_image = Image.open(image)
+            else:
+                loaded_images.append(Image.open(image))
+            img_count += 1
+        list_count += 1
+        path = './{}-output.pdf'.format(list_count)
+        first_image.save(
+            path, 'PDF', resolution=300, save_all=True,
+            append_images=loaded_images)
+        print('Saved {} images'.format(img_count))
+        del loaded_images
+        gc.collect()
 
 if __name__ == '__main__':
     pyodbc.pooling = False
@@ -403,20 +412,20 @@ if __name__ == '__main__':
     #UPRN_LISTS = [
     #    ['010001279831', '100050380169', '100050359718', '010001285090'],
     #    ['100050370512', '100050366002', '010001286067']]
-    for index, uprn_list in enumerate(UPRN_LISTS, 1):
-        calendar_images = []
-        address_images = []
-        for uprn in uprn_list:
-            calendar = Calendar(CONN, uprn)
-            address = Address(CONN, uprn)
-            # calendar_image.image: PIL.Image type, calendar_image.calendar: Calender type
-            calendar_image = CalendarImage(calendar)
-            calendar_images.append(calendar_image)
-            address_image = AddressImage(address)
-            address_images.append(address_image)
-        calendar_side = CalendarSide(calendar_images)
-        address_side = AddressSide(address_images)
-        print('{}: {}'.format(index, address_side.new_file))
-        print('{}: {}'.format(index, calendar_side.new_file))
-    print(convert_to_pdf())
+    #for index, uprn_list in enumerate(UPRN_LISTS, 1):
+    #    calendar_images = []
+    #    address_images = []
+    #    for uprn in uprn_list:
+    #        calendar = Calendar(CONN, uprn)
+    #        address = Address(CONN, uprn)
+    #        # calendar_image.image: PIL.Image type, calendar_image.calendar: Calender type
+    #        calendar_image = CalendarImage(calendar)
+    #        calendar_images.append(calendar_image)
+    #        address_image = AddressImage(address)
+    #        address_images.append(address_image)
+    #    calendar_side = CalendarSide(calendar_images)
+    #    address_side = AddressSide(address_images)
+    #    print('{}: {}'.format(index, address_side.new_file))
+    #    print('{}: {}'.format(index, calendar_side.new_file))
+    convert_to_pdf()
     CONN.close()
