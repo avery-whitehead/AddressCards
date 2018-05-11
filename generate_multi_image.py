@@ -395,6 +395,7 @@ def convert_to_pdf():
             path, 'PDF', resolution=300, save_all=True,
             append_images=loaded_images)
         print('Saved {} images'.format(img_count))
+        # Garbage collection to stop MemoryErrors
         del loaded_images
         gc.collect()
 
