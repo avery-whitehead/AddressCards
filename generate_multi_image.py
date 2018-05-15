@@ -131,7 +131,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 black_bin_text,
-                375, 710,
+                415, 730,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_bin_str = wrap_text(calendar.recycling_bin_str, 7)
@@ -144,7 +144,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_bin_text,
-                1065, 710,
+                1105, 730,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_box_str = wrap_text(calendar.recycling_box_str, 7)
@@ -157,7 +157,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_box_text,
-                930, 710,
+                970, 730,
                 (255, 255, 255),
                 (255, 255, 255))
             green_bin_str = wrap_text(calendar.green_bin_str, 7)
@@ -170,7 +170,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 green_bin_text,
-                1970, 710,
+                2010, 730,
                 (255, 255, 255),
                 (255, 255, 255))
         if self.image_type == 'DIFFERENT_COLLECTION':
@@ -265,7 +265,7 @@ class AddressImage:
         paste_text_box(
             self.address_image,
             text_box,
-            500, 710,
+            500, 680,
             (0, 0, 0),
             (0, 0, 0))
 
@@ -415,7 +415,8 @@ if __name__ == '__main__':
         for uprn in uprn_list:
             calendar = Calendar(CONN, uprn)
             address = Address(CONN, uprn)
-            # calendar_image.image: PIL.Image type, calendar_image.calendar: Calender type
+            # calendar_image.image: PIL.Image type
+            # calendar_image.calendar: Calender type
             calendar_image = CalendarImage(calendar)
             calendar_images.append(calendar_image)
             address_image = AddressImage(address)
