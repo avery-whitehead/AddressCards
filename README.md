@@ -13,7 +13,7 @@ If Python 3 is the only environment installed:
 If Python 2 is installed as well and you're using some variant of the Windows launcher:
 
 * `python3 .\generate_multi_image.py`
-or
+
 * `py -3 .\generate_multi_image.py`
 
 ## How it works
