@@ -2,6 +2,8 @@ SELECT p.uprn
 FROM properties p
     JOIN LLPG_ADDRESS_CURRENT_SPATIAL l
         ON p.uprn = l.uprn
+    JOIN ro.comms_batches b
+        ON l.uprn = b.uprn
     LEFT JOIN (SELECT * FROM PropertyServiceRounds WHERE serviceid = 'REF' AND RoundEra = 2) psr_ref
         ON p.uprn = psr_ref.uprn
     LEFT JOIN (SELECT * FROM rounds where serviceid = 'REF' AND RoundEra=2) ref
@@ -25,3 +27,6 @@ FROM properties p
 WHERE psr_ref.RoundEra = 2
 AND mix.ScheduleDayID IS NULL
 AND glass.ScheduleDayID IS NULL
+AND recy.ScheduleDayID IS NOT NULL
+AND ref.ScheduleDayID IS NOT NULL
+AND b.batch = 1;
