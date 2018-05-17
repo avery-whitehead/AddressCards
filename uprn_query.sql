@@ -29,4 +29,4 @@ AND mix.ScheduleDayID IS NULL
 AND glass.ScheduleDayID IS NULL
 AND recy.ScheduleDayID IS NOT NULL
 AND ref.ScheduleDayID IS NOT NULL
-AND b.batch = 1;
+AND b.batch = 1 and b.exclude = 0;
