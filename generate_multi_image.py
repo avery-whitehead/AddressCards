@@ -222,11 +222,13 @@ class CalendarSide:
             './in/blank_sra3.jpg').convert('RGB')
         self.calendar_side_image.load()
         self.build_calendar_side()
-        filename = ['cal']
+        uprns = []
         for calendar_image in self.calendar_image_list:
-            filename = [calendar_image.calendar.uprn] + filename
+            uprns.append(calendar_image.calendar.uprn)
+        # Reverts the UPRNs back to normal so filenames are the same
+        unflipped_uprns = [uprns[2], uprns[3], uprns[0], uprns[1], 'cal']
         self.new_file = save_image(
-            '-'.join(filename), self.calendar_side_image)
+            '-'.join(unflipped_uprns), self.calendar_side_image)
 
     def build_calendar_side(self):
         """ Pastes each CalendarImage at the correct position on the blank
@@ -405,7 +407,8 @@ def convert_to_pdf():
     """ Converts all the images in the output folder into a single PDF with
     each image on one page
     """
-    paths = [os.path.join('./out', f) for f in next(os.walk('./out'))[2]]
+    paths = sorted([os.path.join('./out', f) for f in next(os.walk('./out'))[2]])
+    print(paths)
     # Splits paths into groups to avoid MemoryErrors
     paths = [paths[i:i + 150] for i in range(0, len(paths), 100)]
     list_count = 0
@@ -438,21 +441,22 @@ if __name__ == '__main__':
         database=CONN_STRING.database,
         uid=CONN_STRING.uid,
         pwd=CONN_STRING.pwd)
-    UPRN_LISTS = get_uprns(CONN)
+    UPRN_LISTS = [['010001287268', '010008643909', '010001285395', '010008642816']]
     for index, uprn_list in enumerate(UPRN_LISTS, 1):
         calendar_images = []
         address_images = []
+        # Order needs to be swapped around on the calendar side for printing
+        swapped_list = [uprn_list[1], uprn_list[0], uprn_list[3], uprn_list[2]]
         for uprn in uprn_list:
-            calendar = Calendar(CONN, uprn)
             address = Address(CONN, uprn)
-            # calendar_image.image: PIL.Image type
-            # calendar_image.calendar: Calender type
-            calendar_image = CalendarImage(calendar)
-            calendar_images.append(calendar_image)
             address_image = AddressImage(address)
             address_images.append(address_image)
-        calendar_side = CalendarSide(calendar_images)
+        for uprn in swapped_list:
+            calendar = Calendar(CONN, uprn)
+            calendar_image = CalendarImage(calendar)
+            calendar_images.append(calendar_image)
         address_side = AddressSide(address_images)
+        calendar_side = CalendarSide(calendar_images)
         print('{}: {}'.format(index, address_side.new_file))
         print('{}: {}'.format(index, calendar_side.new_file))
     convert_to_pdf()
