@@ -125,12 +125,21 @@ class CalendarImage:
     """ Represents a single image of some bins with some calendar data on top
     """
 
-    def __init__(self, calendar):
+    def __init__(self, calendar, index):
         """ Sets some values used to generate the correct image
         """
         self.calendar = calendar
+        if index == 1:
+            self.index = 2
+        elif index == 2:
+            self.index = 1
+        elif index == 3:
+            self.index = 4
+        elif index == 4:
+            self.index = 3
         self.calendar_font = ImageFont.truetype(
             'futura bold condensed italic bt.ttf', 59)
+        self.index_font = ImageFont.truetype('consola.ttf', 50)
         self.load_calendar_image()
         self.image = self.build_calendar_image()
 
@@ -202,6 +211,19 @@ class CalendarImage:
                 2010, 730,
                 (255, 255, 255),
                 (255, 255, 255))
+            # Keeps track of corresponding addresses and calendars
+            number = create_text_box(
+                str(self.index),
+                100, 100, 0,
+                self.index_font,
+                255,
+                True)
+            paste_text_box(
+                self.calendar_image,
+                number,
+                50, 10,
+                (0, 0, 0),
+                (0, 0, 0))
         if self.image_type == 'DIFFERENT_COLLECTION':
             print('TODO: handle different image collection')
         return self.calendar_image
@@ -234,6 +256,7 @@ class CalendarSide:
         """ Pastes each CalendarImage at the correct position on the blank
         page to create a 4x4 grid
         """
+
         for position, calendar_image in enumerate(self.calendar_image_list):
             paste_image(
                 self.calendar_side_image,
@@ -274,13 +297,16 @@ class AddressImage:
     """ Represents a single image of a postal address
     """
 
-    def __init__(self, address):
+    def __init__(self, address, index):
         """ Sets some values used to generate the correct images
         """
         self.address = address
+        self.index = index
         self.address_font = ImageFont.truetype('arial.ttf', 45)
+        self.index_font = ImageFont.truetype('consola.ttf', 50)
         self.address_image = Image.open(
             './in/postcard-front.jpg').convert('RGB')
+
         self.address_image.load()
         self.build_address_image()
 
@@ -297,6 +323,18 @@ class AddressImage:
             self.address_image,
             text_box,
             500, 680,
+            (0, 0, 0),
+            (0, 0, 0))
+        number = create_text_box(
+            str(self.index),
+            100, 100, 0,
+            self.index_font,
+            255,
+            True)
+        paste_text_box(
+            self.address_image,
+            number,
+            50, 10,
             (0, 0, 0),
             (0, 0, 0))
 
@@ -447,13 +485,13 @@ if __name__ == '__main__':
         address_images = []
         # Order needs to be swapped around on the calendar side for printing
         swapped_list = [uprn_list[1], uprn_list[0], uprn_list[3], uprn_list[2]]
-        for uprn in uprn_list:
+        for number, uprn in enumerate(uprn_list, 1):
             address = Address(CONN, uprn)
-            address_image = AddressImage(address)
+            address_image = AddressImage(address, number)
             address_images.append(address_image)
-        for uprn in swapped_list:
+        for number, uprn in enumerate(swapped_list, 1):
             calendar = Calendar(CONN, uprn)
-            calendar_image = CalendarImage(calendar)
+            calendar_image = CalendarImage(calendar, number)
             calendar_images.append(calendar_image)
         address_side = AddressSide(address_images)
         calendar_side = CalendarSide(calendar_images)
