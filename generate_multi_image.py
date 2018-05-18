@@ -169,7 +169,7 @@ class CalendarImage:
                 self.calendar_image,
                 black_bin_text,
                 # X and Y coordinate of the text box
-                415, 730,
+                380, 710,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_bin_str = wrap_text(calendar.recycling_bin_str, 7)
@@ -182,7 +182,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_bin_text,
-                1105, 730,
+                1070, 710,
                 (255, 255, 255),
                 (255, 255, 255))
             recycling_box_str = wrap_text(calendar.recycling_box_str, 7)
@@ -195,7 +195,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 recycling_box_text,
-                970, 730,
+                935, 710,
                 (255, 255, 255),
                 (255, 255, 255))
             green_bin_str = wrap_text(calendar.green_bin_str, 7)
@@ -208,7 +208,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 green_bin_text,
-                2010, 730,
+                1975, 710,
                 (255, 255, 255),
                 (255, 255, 255))
             # Keeps track of corresponding addresses and calendars
@@ -221,7 +221,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 number,
-                50, 10,
+                5, 5,
                 (0, 0, 0),
                 (0, 0, 0))
         if self.image_type == 'DIFFERENT_COLLECTION':
@@ -322,7 +322,7 @@ class AddressImage:
         paste_text_box(
             self.address_image,
             text_box,
-            500, 680,
+            500, 700,
             (0, 0, 0),
             (0, 0, 0))
         number = create_text_box(
