@@ -139,7 +139,7 @@ class CalendarImage:
             self.index = 3
         self.calendar_font = ImageFont.truetype(
             'futura bold condensed italic bt.ttf', 59)
-        self.index_font = ImageFont.truetype('consola.ttf', 50)
+        self.index_font = ImageFont.truetype('consola.ttf', 40)
         self.load_calendar_image()
         self.image = self.build_calendar_image()
 
@@ -221,7 +221,7 @@ class CalendarImage:
             paste_text_box(
                 self.calendar_image,
                 number,
-                5, 5,
+                0, 0,
                 (0, 0, 0),
                 (0, 0, 0))
         if self.image_type == 'DIFFERENT_COLLECTION':
@@ -303,7 +303,7 @@ class AddressImage:
         self.address = address
         self.index = index
         self.address_font = ImageFont.truetype('arial.ttf', 45)
-        self.index_font = ImageFont.truetype('consola.ttf', 50)
+        self.index_font = ImageFont.truetype('consola.ttf', 40)
         self.address_image = Image.open(
             './in/postcard-front.jpg').convert('RGB')
 
@@ -334,7 +334,7 @@ class AddressImage:
         paste_text_box(
             self.address_image,
             number,
-            50, 10,
+            0, 0,
             (0, 0, 0),
             (0, 0, 0))
 
@@ -479,7 +479,7 @@ if __name__ == '__main__':
         database=CONN_STRING.database,
         uid=CONN_STRING.uid,
         pwd=CONN_STRING.pwd)
-    UPRN_LISTS = [['010001287268', '010008643909', '010001285395', '010008642816']]
+    UPRN_LISTS = get_uprns(CONN)
     for index, uprn_list in enumerate(UPRN_LISTS, 1):
         calendar_images = []
         address_images = []
