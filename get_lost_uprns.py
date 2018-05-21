@@ -3,6 +3,10 @@ Looks up UPRNs that were left out of batches because the swapping around
 of list indexes only work if UPRNs are groueped into lists of four.
 Any UPRNs that fall after the last group of four are skipped because an
 IndexError is thrown
+
+NOTE:
+    When saving the result of a query from MSSQL, the UPRN is treated as an
+    integer if opened in Excel so the leading zero is removed.
 """
 
 import csv
@@ -24,6 +28,6 @@ with open ('./first_batch_test.csv') as csv_file:
     for row in csv_read:
         batch_uprns.append(row[0])
 # Get the difference between the two lists
-batch_set = set(batch_uprns)
-uprn_diff = [uprn for uprn in proc_uprns if uprn not in batch_set]
+uprn_set = set(proc_uprns)
+uprn_diff = [uprn for uprn in batch_uprns if uprn not in uprn_set]
 print(uprn_diff)

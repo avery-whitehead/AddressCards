@@ -224,6 +224,18 @@ class CalendarImage:
                 0, 0,
                 (0, 0, 0),
                 (0, 0, 0))
+            uprn = create_text_box(
+                self.calendar.uprn,
+                1000, 100, 0,
+                self.index_font,
+                255,
+                True)
+            paste_text_box(
+                self.calendar_image,
+                uprn,
+                750, 0,
+                (0, 0, 0),
+                (0, 0, 0))
         if self.image_type == 'DIFFERENT_COLLECTION':
             print('TODO: handle different image collection')
         return self.calendar_image
@@ -337,6 +349,18 @@ class AddressImage:
             0, 0,
             (0, 0, 0),
             (0, 0, 0))
+        uprn = create_text_box(
+            self.address.uprn,
+            1000, 100, 0,
+            self.index_font,
+            255,
+            True)
+        paste_text_box(
+            self.address_image,
+            uprn,
+            750, 0,
+            (0, 0, 0),
+            (0, 0, 0))
 
 
 class AddressSide:
@@ -446,7 +470,6 @@ def convert_to_pdf():
     each image on one page
     """
     paths = sorted([os.path.join('./out', f) for f in next(os.walk('./out'))[2]])
-    print(paths)
     # Splits paths into groups to avoid MemoryErrors
     paths = [paths[i:i + 150] for i in range(0, len(paths), 100)]
     list_count = 0
