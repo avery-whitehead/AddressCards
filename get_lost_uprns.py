@@ -23,7 +23,7 @@ for trim in trimmed:
 proc_uprns = [uprn for sublist in proc_uprns for uprn in sublist]
 # Get a list of every UPRN in the batch from the CSV
 batch_uprns = []
-with open ('./first_batch_test.csv') as csv_file:
+with open ('./fourth_batch.csv') as csv_file:
     csv_read = csv.reader(csv_file)
     for row in csv_read:
         batch_uprns.append(row[0])

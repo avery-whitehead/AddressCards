@@ -471,7 +471,7 @@ def convert_to_pdf():
     """
     paths = sorted([os.path.join('./out', f) for f in next(os.walk('./out'))[2]])
     # Splits paths into groups to avoid MemoryErrors
-    paths = [paths[i:i + 150] for i in range(0, len(paths), 100)]
+    paths = [paths[i:i + 150] for i in range(0, len(paths), 150)]
     list_count = 0
     img_count = 0
     for sublist in paths:
